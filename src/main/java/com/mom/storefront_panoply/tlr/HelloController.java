@@ -1,0 +1,20 @@
+package com.mom.storefront_panoply.tlr;
+
+import com.mom.storefront_panoply.games.model.Game;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+public class HelloController {
+
+    @GetMapping("/lefta")
+    public ResponseEntity<String> getPopularGames() {
+        return ResponseEntity.ok("Tha vgaloume lefta re : 9:09");
+    }
+}
