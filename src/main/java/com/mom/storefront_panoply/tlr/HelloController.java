@@ -7,14 +7,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 public class HelloController {
 
     @GetMapping("/lefta")
-    public ResponseEntity<String> getPopularGames() {
+    public ResponseEntity<String> lefta() {
         return ResponseEntity.ok("Tha vgaloume lefta re : 9:09");
     }
 }
