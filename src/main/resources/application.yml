@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: storefront_panoply
+igdb:
+  client-id: 1g2cdnqxkemqoru00cqqe0y4pnwhbk
+  bearer-token: ownwduirkoksv4x6zd45bp3b4r9pmm
+
+# Feign timeouts and logging
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
