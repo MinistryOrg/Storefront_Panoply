@@ -13,7 +13,7 @@ public class HelloController {
 
     @GetMapping("/lefta")
     public ResponseEntity<String> lefta() {
-        return ResponseEntity.ok("Tha vgaloume lefta re : 9:09");
+        return ResponseEntity.ok("Θα βγάλουμε λεφτά ρε.. υπομονή..");
     }
 
     @GetMapping("")
