@@ -1,6 +1,8 @@
 spring:
   application:
     name: storefront_panoply
+  mongodb:
+    uri: ${SPRING_DATA_MONGODB_URI}
 igdb:
   client-id: 1g2cdnqxkemqoru00cqqe0y4pnwhbk
   bearer-token: ownwduirkoksv4x6zd45bp3b4r9pmm
