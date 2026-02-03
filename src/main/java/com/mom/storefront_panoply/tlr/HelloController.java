@@ -15,4 +15,9 @@ public class HelloController {
     public ResponseEntity<String> lefta() {
         return ResponseEntity.ok("Tha vgaloume lefta re : 9:09");
     }
+
+    @GetMapping("")
+    public ResponseEntity<String> test (){
+        return ResponseEntity.ok("Υπομονή και όνειρα..");
+    }
 }
