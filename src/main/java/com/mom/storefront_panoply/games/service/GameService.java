@@ -35,39 +35,81 @@ public class GameService {
         return PagedResponse.from(entities, gameMapper::toDto);
     }
 
+//    public void syncGames() {
+//
+//        log.info("Starting game sync...");
+//
+//        // 1. Get popular IDs
+//        Set<Long> popularIds = igdbService.getPopularGamesIds();
+//
+//        log.info("Popular games ids: {}", popularIds);
+//
+//        // 2. Get all games
+//        List<Game> igdbGames = igdbService.getAllGames();
+//
+//        if (igdbGames.isEmpty()) {
+//            log.warn("No games fetched from IGDB");
+//            return;
+//        }
+//
+//        List<GameEntity> entities = new ArrayList<>();
+//
+//        for (Game game : igdbGames) {
+//
+//            boolean isPopular = popularIds.contains(game.getId());
+//
+//            GameEntity entity =
+//                    gameMapper.toEntity(game, isPopular);
+//
+//            entities.add(entity);
+//        }
+//
+//        gameRepository.saveAll(entities);
+//
+//        log.info("Saved {} games", entities.size());
+//    }
+
     public void syncGames() {
 
         log.info("Starting game sync...");
 
-        // 1. Get popular IDs
+        // 1. Load popular IDs (small, safe)
         Set<Long> popularIds = igdbService.getPopularGamesIds();
 
-        log.info("Popular games ids: {}", popularIds);
+        log.info("Loaded {} popular games", popularIds.size());
 
-        // 2. Get all games
-        List<Game> igdbGames = igdbService.getAllGames();
+        final int batchSize = 100;
+        List<GameEntity> buffer = new ArrayList<>(batchSize);
 
-        if (igdbGames.isEmpty()) {
-            log.warn("No games fetched from IGDB");
-            return;
+        // 2. Stream pages
+        igdbService.streamAllGames(games -> {
+
+            for (Game game : games) {
+
+                boolean isPopular = popularIds.contains(game.getId());
+
+                GameEntity entity =
+                        gameMapper.toEntity(game, isPopular);
+
+                buffer.add(entity);
+
+                // ✅ Save in batches
+                if (buffer.size() >= batchSize) {
+                    gameRepository.saveAll(buffer);
+                    buffer.clear(); // FREE MEMORY
+                }
+            }
+
+        });
+
+        // 3. Save remaining
+        if (!buffer.isEmpty()) {
+            gameRepository.saveAll(buffer);
+            buffer.clear();
         }
 
-        List<GameEntity> entities = new ArrayList<>();
-
-        for (Game game : igdbGames) {
-
-            boolean isPopular = popularIds.contains(game.getId());
-
-            GameEntity entity =
-                    gameMapper.toEntity(game, isPopular);
-
-            entities.add(entity);
-        }
-
-        // 3. Bulk save
-        gameRepository.saveAll(entities);
-
-        log.info("Saved {} games", entities.size());
+        log.info("Game sync completed.");
     }
+
 
 }

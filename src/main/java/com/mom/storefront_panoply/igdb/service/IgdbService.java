@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -18,7 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class IgdbService {
     private final IgdbClient igdbClient;
-
     /*
             TODO :
                     -hype in the game it return in the popular
@@ -176,4 +176,55 @@ public class IgdbService {
         log.info("Total games fetched: {}", allGames.size());
         return allGames;
     }
+
+    public void streamAllGames(Consumer<List<Game>> pageConsumer) {
+
+        int offset = 0;
+        final int limit = 200; // smaller = safer
+
+        log.info("Starting IGDB streaming sync...");
+
+        while (true) {
+
+            String body =
+                    "fields id,name,summary,first_release_date,cover.image_id,total_rating,platforms.name; " +
+                            "limit " + limit + "; offset " + offset + ";";
+
+            List<Game> games;
+
+            try {
+                games = igdbClient.getGames(body);
+            } catch (Exception e) {
+                log.error("Failed at offset {}", offset, e);
+                break;
+            }
+
+            if (games == null || games.isEmpty()) {
+                log.info("No more games.");
+                break;
+            }
+
+            log.info("Fetched {} games at offset {}", games.size(), offset);
+
+            // ✅ Hand over to GameService
+            pageConsumer.accept(games);
+
+            // ✅ Free memory ASAP
+            games.clear();
+
+            if (games.size() < limit) break;
+
+            offset += limit;
+
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        log.info("IGDB streaming finished.");
+    }
 }
+
