@@ -1,0 +1,20 @@
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+  mongodb:
+    uri: mongodb://localhost:27017/eshop
+
+igdb:
+  client-id: 1g2cdnqxkemqoru00cqqe0y4pnwhbk
+  bearer-token: ownwduirkoksv4x6zd45bp3b4r9pmm
+
+# Feign timeouts and logging
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
