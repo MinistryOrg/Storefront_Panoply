@@ -71,45 +71,45 @@ public class GameService {
 
     public void syncGames() {
 
-        log.info("Starting game sync...");
+        log.info("Starting full game sync...");
 
-        // 1. Load popular IDs (small, safe)
+        // Small set → safe
         Set<Long> popularIds = igdbService.getPopularGamesIds();
 
-        log.info("Loaded {} popular games", popularIds.size());
-
         final int batchSize = 100;
+
         List<GameEntity> buffer = new ArrayList<>(batchSize);
 
-        // 2. Stream pages
         igdbService.streamAllGames(games -> {
 
             for (Game game : games) {
 
-                boolean isPopular = popularIds.contains(game.getId());
+                boolean popular = popularIds.contains(game.getId());
 
                 GameEntity entity =
-                        gameMapper.toEntity(game, isPopular);
+                        gameMapper.toEntity(game, popular);
 
                 buffer.add(entity);
 
-                // ✅ Save in batches
+                // Save batch
                 if (buffer.size() >= batchSize) {
+
                     gameRepository.saveAll(buffer);
-                    buffer.clear(); // FREE MEMORY
+
+                    buffer.clear();
                 }
             }
-
         });
 
-        // 3. Save remaining
+        // Save leftovers
         if (!buffer.isEmpty()) {
             gameRepository.saveAll(buffer);
             buffer.clear();
         }
 
-        log.info("Game sync completed.");
+        log.info("Game sync completed successfully.");
     }
+
 
 
 }

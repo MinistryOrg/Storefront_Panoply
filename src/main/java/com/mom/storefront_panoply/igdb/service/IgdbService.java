@@ -180,9 +180,9 @@ public class IgdbService {
     public void streamAllGames(Consumer<List<Game>> pageConsumer) {
 
         int offset = 0;
-        final int limit = 200; // smaller = safer
+        final int limit = 200;
 
-        log.info("Starting IGDB streaming sync...");
+        log.info("Starting IGDB full sync...");
 
         while (true) {
 
@@ -204,20 +204,23 @@ public class IgdbService {
                 break;
             }
 
+            int fetched = games.size();
+
             log.info("Fetched {} games at offset {}", games.size(), offset);
 
-            // ✅ Hand over to GameService
             pageConsumer.accept(games);
 
-            // ✅ Free memory ASAP
             games.clear();
 
-            if (games.size() < limit) break;
+            if (fetched < limit) {
+                log.info("Last page reached.");
+                break;
+            }
 
             offset += limit;
 
             try {
-                Thread.sleep(200);
+                Thread.sleep(260);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
