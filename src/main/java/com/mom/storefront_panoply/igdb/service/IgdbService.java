@@ -99,15 +99,14 @@ public class IgdbService {
         return allGames;
     }
 
-    public List<Game> getAllGames() {
+    public void streamAllGames(Consumer<List<Game>> pageConsumer) {
         int offset = 0;
-        final int limit = 500;
-        List<Game> allGames = new ArrayList<>();
+        final int limit = 200;
+        String size = "limit " + limit + "; offset " + offset + ";";
 
-        log.info("Starting full IGDB sync…");
+        log.info("Starting IGDB full sync...");
 
         while (true) {
-            String size = "limit " + limit + "; offset " + offset + ";";
 
             String body = "fields" +
                     "  name, summary, storyline, first_release_date," +
@@ -137,58 +136,6 @@ public class IgdbService {
                     "  websites.*, websites.type.*," +
                     "  similar_games.name, similar_games.cover.url," +
                     "  keywords.name;" + size;
-
-            log.info("Requesting IGDB page: offset={}, limit={}", offset, limit);
-
-            List<Game> games;
-            try {
-                games = igdbClient.getGames(body);
-            } catch (Exception e) {
-                log.error("Failed to fetch games from IGDB at offset {}: {}", offset, e.getMessage(), e);
-                break;
-            }
-
-            if (games == null || games.isEmpty()) {
-                log.info("No games returned from IGDB at offset {}, stopping.", offset);
-                break;
-            }
-
-            log.info("Fetched {} games at offset {}", games.size(), offset);
-            allGames.addAll(games);
-
-            // If we received less than a full page, we've reached the last page.
-            if (games.size() < limit) {
-                log.info("Last page reached (size {} < limit {}), stopping.", games.size(), limit);
-                break;
-            }
-
-            offset += limit;
-
-            try {
-                Thread.sleep(250); // rate-limit friendly
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.warn("Sync sleep was interrupted, stopping sync.", e);
-                break;
-            }
-        }
-
-        log.info("Total games fetched: {}", allGames.size());
-        return allGames;
-    }
-
-    public void streamAllGames(Consumer<List<Game>> pageConsumer) {
-
-        int offset = 0;
-        final int limit = 200;
-
-        log.info("Starting IGDB full sync...");
-
-        while (true) {
-
-            String body =
-                    "fields id,name,summary,first_release_date,cover.image_id,total_rating,platforms.name; " +
-                            "limit " + limit + "; offset " + offset + ";";
 
             List<Game> games;
 

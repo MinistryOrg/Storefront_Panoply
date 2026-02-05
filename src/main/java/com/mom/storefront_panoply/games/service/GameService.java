@@ -73,7 +73,6 @@ public class GameService {
 
         log.info("Starting full game sync...");
 
-        // Small set → safe
         Set<Long> popularIds = igdbService.getPopularGamesIds();
 
         final int batchSize = 100;
@@ -109,7 +108,4 @@ public class GameService {
 
         log.info("Game sync completed successfully.");
     }
-
-
-
 }
