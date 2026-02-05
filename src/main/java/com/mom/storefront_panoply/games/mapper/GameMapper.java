@@ -4,6 +4,7 @@ import com.mom.storefront_panoply.games.model.dbo.GameEntity;
 import com.mom.storefront_panoply.games.model.dto.GameDto;
 import com.mom.storefront_panoply.igdb.model.Game;
 import com.mom.storefront_panoply.igdb.model.Genre;
+import com.mom.storefront_panoply.igdb.model.Screenshot;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -38,11 +39,13 @@ public class GameMapper {
                                 : null
                 )
 
-                // Screenshot (first one only)
-                .screenshotImageId(
+                // Screenshot
+                .screenshotsImageId(
                         entity.getScreenshots() != null &&
                                 !entity.getScreenshots().isEmpty()
-                                ? entity.getScreenshots().get(0).getImageId()
+                                ? entity.getScreenshots().stream()
+                                .map(Screenshot::getImageId)
+                                .toList()
                                 : null
                 )
 

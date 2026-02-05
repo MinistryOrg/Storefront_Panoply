@@ -18,6 +18,6 @@ public class GameDto {
     private String coverImageId;
     private String totalRating;
     private String rating;
-    private String screenshotImageId;
+    private List<String> screenshotsImageId;
     private List<String> genreName;
 }
