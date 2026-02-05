@@ -9,7 +9,7 @@ spring:
 
 igdb:
   client-id: 1g2cdnqxkemqoru00cqqe0y4pnwhbk
-  bearer-token: ownwduirkoksv4x6zd45bp3b4r9pmm
+  bearer-token: 250bhe0vyerqh0f3v3txd2knsgv7iz
 
 # Feign timeouts and logging
 feign:
