@@ -1,6 +1,8 @@
 package com.mom.storefront_panoply.igdb.service;
 
 import com.mom.storefront_panoply.igdb.clients.IgdbClient;
+import com.mom.storefront_panoply.igdb.model.Collection;
+import com.mom.storefront_panoply.igdb.model.Franchise;
 import com.mom.storefront_panoply.igdb.model.Game;
 import com.mom.storefront_panoply.igdb.model.PopularityPrimitive;
 import lombok.RequiredArgsConstructor;
@@ -20,12 +22,11 @@ import java.util.stream.Collectors;
 public class IgdbService {
     private final IgdbClient igdbClient;
     /*
-            TODO :
-                    -hype in the game it return in the popular
-                    -getGames minimal info
-                    -getGame all the info
+        todo :
+            -get collection
+            -get franchise
+            -fix the query to get only the latest updated or created to not update all the games every time
      */
-
     public Set<Long> getPopularGamesIds() {
 
         String popularityBody =
@@ -101,7 +102,7 @@ public class IgdbService {
 
     public void streamAllGames(Consumer<List<Game>> pageConsumer) {
         int offset = 0;
-        final int limit = 200;
+        final int limit = 100;
         String size = "limit " + limit + "; offset " + offset + ";";
 
         log.info("Starting IGDB full sync...");
@@ -109,8 +110,8 @@ public class IgdbService {
         while (true) {
 
             String body = "fields" +
-                    "  name, summary, storyline, first_release_date," +
-                    "  total_rating, total_rating_count, status, cover.image_id, aggregated_rating, aggregated_rating_count, rating, similar_games, platforms.*," +
+                    "  name, summary, storyline, first_release_date, created_at, updated_at," +
+                    "  total_rating, total_rating_count,hypes,status, cover.image_id, aggregated_rating, aggregated_rating_count, rating, similar_games, platforms.*," +
                     "  genres.name," +
                     "  themes.name," +
                     "  game_modes.name," +
@@ -176,5 +177,9 @@ public class IgdbService {
 
         log.info("IGDB streaming finished.");
     }
+
+    public void streamAllCollection(Consumer<List<Collection>> pageConsumer) {}
+
+    public void streamAllFranchise(Consumer<Franchise> pageConsumer) {}
 }
 

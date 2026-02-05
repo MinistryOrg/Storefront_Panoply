@@ -1,4 +1,4 @@
-package com.mom.storefront_panoply.pagination.model;
+package com.mom.storefront_panoply.tools;
 
 import java.util.List;
 import java.util.function.Function;

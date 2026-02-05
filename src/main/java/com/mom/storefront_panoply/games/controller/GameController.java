@@ -4,7 +4,7 @@ import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.model.dto.GameDto;
 import com.mom.storefront_panoply.games.model.dto.GameResponse;
 import com.mom.storefront_panoply.games.service.GameService;
-import com.mom.storefront_panoply.pagination.model.PagedResponse;
+import com.mom.storefront_panoply.tools.PagedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +26,15 @@ public class GameController {
                 .build());
     }
 
-    @GetMapping("/sync")
+    @GetMapping("/soft-sync")
     public ResponseEntity<String> syncGames() {
+        gameService.syncGames();
+        return ResponseEntity.ok("All good boss");
+    }
+
+    @GetMapping("/hard-sync")
+    public ResponseEntity<String> hardSyncGames() {
+        // todo is going to hard sync used only se case we want new information of new fields
         gameService.syncGames();
         return ResponseEntity.ok("All good boss");
     }

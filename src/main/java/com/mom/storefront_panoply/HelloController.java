@@ -1,4 +1,4 @@
-package com.mom.storefront_panoply.tlr;
+package com.mom.storefront_panoply;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
