@@ -1,8 +1,7 @@
 package com.mom.storefront_panoply.igdb.clients;
 
 import com.mom.storefront_panoply.igdb.clients.config.FeignIgdbConfig;
-import com.mom.storefront_panoply.igdb.model.Game;
-import com.mom.storefront_panoply.igdb.model.PopularityPrimitive;
+import com.mom.storefront_panoply.igdb.model.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,4 +16,19 @@ public interface IgdbClient {
 
     @PostMapping(value = "/games", consumes = "text/plain", produces = "application/json")
     List<Game> getGames(@RequestBody String body);
+
+    @PostMapping(value = "/genres", consumes = "text/plain", produces = "application/json")
+    List<Genre> getGenres(@RequestBody String body);
+
+    @PostMapping(value = "/platforms", consumes = "text/plain", produces = "application/json")
+    List<Platform> getPlatforms(@RequestBody String body);
+
+    @PostMapping(value = "/game_types", consumes = "text/plain", produces = "application/json")
+    List<GameType> getGameTypes(@RequestBody String body);
+
+    @PostMapping(value = "/game_modes", consumes = "text/plain", produces = "application/json")
+    List<GameMode> getGameMode(@RequestBody String body);
+
+    @PostMapping(value = "/game_time_to_beats", consumes = "text/plain", produces = "application/json")
+    List<GameTimeToBeats> getGameTimeToBeats(@RequestBody String body);
 }

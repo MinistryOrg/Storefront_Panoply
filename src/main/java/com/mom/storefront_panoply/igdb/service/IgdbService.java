@@ -1,26 +1,22 @@
 package com.mom.storefront_panoply.igdb.service;
 
 import com.mom.storefront_panoply.igdb.clients.IgdbClient;
-import com.mom.storefront_panoply.igdb.model.Collection;
-import com.mom.storefront_panoply.igdb.model.Franchise;
-import com.mom.storefront_panoply.igdb.model.Game;
-import com.mom.storefront_panoply.igdb.model.PopularityPrimitive;
+import com.mom.storefront_panoply.igdb.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class IgdbService {
     private final IgdbClient igdbClient;
+
     /*
         todo :
             -get collection
@@ -48,95 +44,193 @@ public class IgdbService {
         return gameIds;
     }
 
-    public List<Game> getAllGameTest() {
-        int offset = 0;
-        final int limit = 500;
+    public List<Genre> getAllGenres() {
+        String body = "fields id,name;" +
+                "limit 500;" +
+                "offset 0;" +
+                "sort id asc;";
 
-        log.info("Starting full IGDB sync…");
-
-        String size = "limit " + limit + "; offset " + offset + ";";
-
-        String body = "fields " +
-                "name, summary, storyline, first_release_date, created_at, updated_at," +
-                "total_rating, total_rating_count, status, cover.image_id, aggregated_rating, aggregated_rating_count, rating, similar_games, platforms.*," +
-                "genres.name," +
-                "themes.name," +
-                "game_modes.name," +
-                "player_perspectives.name," +
-                "age_ratings.*, age_ratings.organization," +
-                "involved_companies.developer, involved_companies.publisher, involved_companies.company.name, involved_companies.supporting," +
-                "game_engines.name," +
-                "game_localizations.region.name," +
-                "language_supports.language.name, language_supports.language_support_type.name," +
-                "ports.name, ports.cover.url," +
-                "remakes.name, remakes.cover.url," +
-                "remasters.name, remasters.cover.url," +
-                "version_title, parent_game.name, parent_game.cover.url," +
-                "dlcs.name, dlcs.cover.url," +
-                "expansions.name, expansions.cover.url," +
-                "standalone_expansions.name, standalone_expansions.cover.url," +
-                "bundles.name, bundles.cover.url," +
-                "screenshots.image_id," +
-                "videos.video_id," +
-                "artworks.image_id," +
-                "alternative_names.name," +
-                "external_games.category, external_games.url," +
-                "websites.*, websites.type.*," +
-                "similar_games.name, similar_games.cover.url," +
-                "keywords.name;" +
-                size;
-
-        log.info("Requesting IGDB page: offset={}, limit={}", offset, limit);
-
-        List<Game> games;
         try {
-            games = igdbClient.getGames(body);
+           List<Genre> genres = igdbClient.getGenres(body);
+           return genres;
         } catch (Exception e) {
-            log.error("Failed to fetch games from IGDB at offset {}: {}", offset, e.getMessage(), e);
+            log.error("Failed to get the genres {}", e);
             throw e;
         }
-        List<Game> allGames = new ArrayList<>(games);
-        log.info("Total games fetched: {}", allGames.size());
-        return allGames;
     }
 
-    public void streamAllGames(Consumer<List<Game>> pageConsumer) {
+    public List<Platform> getAllPlatforms() {
+        String body = "fields id,name;" +
+                "limit 500;" +
+                "offset 0;" +
+                "sort id asc;";
+
+        try {
+            List<Platform> platforms = igdbClient.getPlatforms(body);
+            return platforms;
+        } catch (Exception e) {
+            log.error("Failed to get the platforms {}", e);
+            throw e;
+        }
+    }
+
+    public List<GameType> getAllGameTypes() {
+        String body = "fields type;" +
+                "limit 500;" +
+                "offset 0;" +
+                "sort id asc;";
+
+        try {
+            List<GameType> gameTypes = igdbClient.getGameTypes(body);
+            return gameTypes;
+        } catch (Exception e) {
+            log.error("Failed to get the game types {}", e);
+            throw e;
+        }
+    }
+
+    public List<GameMode> getAllGameModes() {
+        String body = "fields id,name;" +
+                "limit 500;" +
+                "offset 0;" +
+                "sort id asc;";
+
+        try {
+            List<GameMode> gameMode = igdbClient.getGameMode(body);
+            return gameMode;
+        } catch (Exception e) {
+            log.error("Failed to get the game types {}", e);
+            throw e;
+        }
+    }
+
+    public void getAllGames(Consumer<List<Game>> pageConsumer) {
         int offset = 0;
         final int limit = 100;
-        String size = "limit " + limit + "; offset " + offset + ";";
 
         log.info("Starting IGDB full sync...");
 
         while (true) {
 
-            String body = "fields" +
-                    "  name, summary, storyline, first_release_date, created_at, updated_at," +
-                    "  total_rating, total_rating_count,hypes,status, cover.image_id, aggregated_rating, aggregated_rating_count, rating, similar_games, platforms.*," +
-                    "  genres.name," +
-                    "  themes.name," +
-                    "  game_modes.name," +
-                    "  player_perspectives.name," +
-                    "  age_ratings.*, age_ratings.organization," +
-                    "  involved_companies.developer, involved_companies.publisher, involved_companies.company.name, involved_companies.supporting," +
-                    "  game_engines.name," +
-                    "  game_localizations.region.name," +
-                    "  language_supports.language.name, language_supports.language_support_type.name," +
-                    "  ports.name, ports.cover.url," +
-                    "  remakes.name, remakes.cover.url," +
-                    "  remasters.name, remasters.cover.url," +
-                    "  version_title, parent_game.name, parent_game.cover.url," +
-                    "  dlcs.name, dlcs.cover.url," +
-                    "  expansions.name, expansions.cover.url," +
-                    "  standalone_expansions.name, standalone_expansions.cover.url," +
-                    "  bundles.name, bundles.cover.url," +
-                    "  screenshots.image_id," +
-                    "  videos.video_id," +
-                    "  artworks.image_id," +
-                    "  alternative_names.name," +
-                    "  external_games.category, external_games.url," +
-                    "  websites.*, websites.type.*," +
-                    "  similar_games.name, similar_games.cover.url," +
-                    "  keywords.name;" + size;
+            // recompute size on every iteration so offset is correct
+            String size = "limit " + limit + "; offset " + offset + ";";
+
+            String body = """
+                    fields
+                   
+                      name,
+                      summary,
+                      storyline,
+                      first_release_date,
+                      created_at, updated_at,
+                      status,
+
+                      total_rating,
+                      total_rating_count,
+                      aggregated_rating,
+                      aggregated_rating_count,
+                      rating,
+                  
+                      cover.image_id,
+                      screenshots.image_id,
+                      artworks.image_id,
+                      artworks.artwork_type,
+                      videos.video_id,
+                      videos.name,
+                   
+                      platforms.*,
+                      game_status.status,
+                    
+                    
+                      genres.name,
+                      themes.name,
+                      game_modes.name,
+                      player_perspectives.name,
+                      keywords.name,
+                    
+                      age_ratings.organization.name,
+                      age_ratings.rating_category.rating,
+                      age_ratings.rating_category.organization.name,
+                      age_ratings.rating_cover_url,
+                      age_ratings.synopsis,
+                      age_ratings.rating_content_descriptions.description,
+                    
+                      involved_companies.developer,
+                      involved_companies.publisher,
+                      involved_companies.company.name,
+                      involved_companies.supporting,
+                    
+                      game_engines.name,
+                      game_localizations.region.name,
+                      language_supports.language.name,
+                      language_supports.language_support_type.name,
+                    
+                      version_title,
+                      version_parent.name,
+                      version_parent.cover.image_id,
+                      ports.*,
+                      remakes.name,
+                      remakes.cover.image_id,
+                      remasters.name,
+                      remasters.cover.image_id,
+                    
+                      game_type,
+                      parent_game.name,
+                      parent_game.cover.url,
+                    
+                      dlcs.name,
+                      dlcs.cover.image_id,
+                      dlcs.game_type,
+                    
+                      expansions.name,
+                      expansions.cover.image_id,
+                      expansions.game_type,
+                    
+                      standalone_expansions.name,
+                      standalone_expansions.cover.url,
+                    
+                      bundles.name,
+                      bundles.cover.image_id,
+                    
+                      external_games.game,
+                      external_games.name,
+                      external_games.url,
+                      external_games.platform.name,
+                      external_games.external_game_source.name,
+                    
+                      franchise,
+                      franchises.name,
+                      franchises.url,
+                      franchises.games.name,
+                      franchises.games.cover.image_id,
+                      franchises.games.game_type,
+                      franchises.games.version_parent,
+                      franchises.games.version_parent.name,
+                      franchises.games.first_release_date,
+                      franchises.games.rating,
+                      franchises.games.hypes,
+                    
+                      collections.name,
+                      collections.games.name,
+                      collections.games.cover.image_id,
+                      collections.games.game_type,
+                      collections.games.id,
+                      collections.games.first_release_date,
+                      collections.as_parent_relations.*,
+                      collection.as_child_relations.*,
+                    
+                      websites.*,
+                      websites.type.*,
+                    
+                      similar_games.name,
+                      similar_games.cover.image_id,
+                      similar_games.rating,
+                    
+                      alternative_names.name;
+                    
+                    """
+                    + size + ";";
+
 
             List<Game> games;
 
@@ -178,8 +272,10 @@ public class IgdbService {
         log.info("IGDB streaming finished.");
     }
 
-    public void streamAllCollection(Consumer<List<Collection>> pageConsumer) {}
+    public void streamAllCollection(Consumer<List<Collection>> pageConsumer) {
+    }
 
-    public void streamAllFranchise(Consumer<Franchise> pageConsumer) {}
+    public void streamAllFranchise(Consumer<Franchise> pageConsumer) {
+    }
 }
 

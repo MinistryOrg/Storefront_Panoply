@@ -1,15 +1,17 @@
 package com.mom.storefront_panoply.igdb.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.*;
 
-import java.util.Date;
 import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Game {
 
     private Long id;
@@ -18,7 +20,7 @@ public class Game {
     private String storyline;
 
     @JsonProperty("first_release_date")
-    private Date firstReleaseDate;
+    private Long firstReleaseDate;
 
     @JsonProperty("total_rating")
     private Double totalRating;
@@ -27,10 +29,10 @@ public class Game {
     private Integer totalRatingCount;
 
     @JsonProperty("created_at")
-    private Date createdAt;
+    private Long createdAt;
 
     @JsonProperty("updated_at")
-    private Date updatedAt;
+    private Long updatedAt;
 
     private Integer status;
 
@@ -130,4 +132,8 @@ public class Game {
     private List<Website> websites;
 
     private List<Keyword> keywords;
+
+    public Game(Long id) {
+        this.id = id;
+    }
 }

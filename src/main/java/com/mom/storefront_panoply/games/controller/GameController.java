@@ -1,8 +1,8 @@
 package com.mom.storefront_panoply.games.controller;
 
 import com.mom.storefront_panoply.games.filters.GameFilter;
-import com.mom.storefront_panoply.games.model.dto.GameDto;
-import com.mom.storefront_panoply.games.model.dto.GameResponse;
+import com.mom.storefront_panoply.games.model.dbo.GameEntity;
+import com.mom.storefront_panoply.games.model.dto.*;
 import com.mom.storefront_panoply.games.service.GameService;
 import com.mom.storefront_panoply.tools.PagedResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class GameController {
     @PostMapping("games")
     public ResponseEntity<GameResponse> getGames(@RequestBody(required = false) GameFilter gamesFilter, @RequestParam(defaultValue = "10") Integer size,
                                                            @RequestParam(defaultValue = "0") Integer page) {
-        PagedResponse<GameDto> games = gameService.findGames(gamesFilter, size, page);
+        PagedResponse<GameDto> games = gameService.getGames(gamesFilter, size, page);
         return ResponseEntity.ok(GameResponse.builder()
                         .message("Success")
                         .status("200")
@@ -26,20 +26,18 @@ public class GameController {
                 .build());
     }
 
-    @GetMapping("/soft-sync")
-    public ResponseEntity<String> syncGames() {
-        gameService.syncGames();
-        return ResponseEntity.ok("All good boss");
+    @GetMapping("game")
+    public ResponseEntity<GameDetailsResponse> getGame(@RequestParam String gameId) {
+        GameDetailsDto game = gameService.getGame(gameId);
+        return ResponseEntity.ok(GameDetailsResponse.builder()
+                .message("Success")
+                .status("200")
+                .gamesDetails(game)
+                .build());
     }
 
-    @GetMapping("/hard-sync")
-    public ResponseEntity<String> hardSyncGames() {
-        // todo is going to hard sync used only se case we want new information of new fields
-        gameService.syncGames();
-        return ResponseEntity.ok("All good boss");
+    @GetMapping("game-search-filters")
+    public ResponseEntity<GameSearchFilters> gameSearchFilters() {
+        return ResponseEntity.ok(gameService.getGameSearchFilters());
     }
-
-
-
-
 }

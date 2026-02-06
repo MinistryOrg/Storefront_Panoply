@@ -16,4 +16,8 @@ public class Cover {
     private String url;
     @JsonProperty("image_id")
     private String imageId;
+
+    public Cover(long id) {
+        this.id = id;
+    }
 }

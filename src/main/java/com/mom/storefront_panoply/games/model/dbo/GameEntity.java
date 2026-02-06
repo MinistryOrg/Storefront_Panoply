@@ -1,6 +1,5 @@
 package com.mom.storefront_panoply.games.model.dbo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mom.storefront_panoply.igdb.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "games")
@@ -24,11 +23,11 @@ public class GameEntity {
     private String summary;
     private String storyline;
 
-    private Date firstReleaseDate;
+    private LocalDateTime firstReleaseDate;
 
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     private Double totalRating;
 
@@ -52,7 +51,7 @@ public class GameEntity {
 
     private List<Platform> platforms;
 
-    private List<Genre> genres;
+    private List<GenreEntity> genres;
     private List<Theme> themes;
 
     private List<GameMode> gameModes;
@@ -94,7 +93,7 @@ public class GameEntity {
 
     private Franchise franchise;
 
-    private List<Franchise> franchises;
+    private List<FranchiseEntity> franchises;
 
     private List<Collection> collections;
 

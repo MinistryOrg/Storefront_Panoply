@@ -1,26 +1,26 @@
-package com.mom.storefront_panoply.igdb.model;
+package com.mom.storefront_panoply.games.model.dbo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.mom.storefront_panoply.igdb.model.Game;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
+@Document(collection = "franchises")
 @Data
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Franchise {
+public class FranchiseEntity {
 
     private Long id;
     private String name;
     private String url;
 
     private List<Game> games;
-
-    public Franchise(Long id) {
-        this.id = id;
-    }
 }

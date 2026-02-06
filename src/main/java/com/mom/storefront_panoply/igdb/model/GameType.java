@@ -2,22 +2,18 @@ package com.mom.storefront_panoply.igdb.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ExternalGame {
-    private Long id;
-    private Integer category;
-    private String url;
+public class GameType {
+    private String id;
+    private String type;
 
-    public ExternalGame(Long id) {
+    public GameType(String id) {
         this.id = id;
     }
 }
-

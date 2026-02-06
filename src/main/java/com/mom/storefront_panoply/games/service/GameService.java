@@ -2,10 +2,13 @@ package com.mom.storefront_panoply.games.service;
 
 import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.mapper.GameMapper;
-import com.mom.storefront_panoply.games.model.dbo.GameEntity;
+import com.mom.storefront_panoply.games.model.dbo.*;
+import com.mom.storefront_panoply.games.model.dto.GameDetailsDto;
 import com.mom.storefront_panoply.games.model.dto.GameDto;
+import com.mom.storefront_panoply.games.model.dto.GameSearchFilters;
 import com.mom.storefront_panoply.games.repository.GameRepository;
 import com.mom.storefront_panoply.igdb.model.Game;
+import com.mom.storefront_panoply.igdb.model.Genre;
 import com.mom.storefront_panoply.igdb.service.IgdbService;
 import com.mom.storefront_panoply.tools.PagedResponse;
 import com.mom.storefront_panoply.tools.Util;
@@ -18,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,17 +37,33 @@ public class GameService {
     private final GameMapper gameMapper;
     private final MongoTemplate mongoTemplate;
 
-    public PagedResponse<GameDto> findGames(GameFilter gamesFilter, Integer size, Integer page) {
+    public PagedResponse<GameDto> getGames(GameFilter gamesFilter, Integer size, Integer page) {
         Pageable pageable = PageRequest.of(page, size);
         Page<GameEntity> entities;
 
-        if(Util.nullOrEmpty(gamesFilter)) {
-           entities = gameRepository.findAll(pageable);
-           return PagedResponse.from(entities, gameMapper::toDto);
+        if (Util.nullOrEmpty(gamesFilter)) {
+            entities = gameRepository.findAll(pageable);
+            return PagedResponse.from(entities, gameMapper::toGameDto);
         }
 
-        return PagedResponse.from(filterGames(gamesFilter, pageable),gameMapper::toDto);
+        return PagedResponse.from(filterGames(gamesFilter, pageable), gameMapper::toGameDto);
     }
+
+    public GameDetailsDto getGame(String gameId) {
+        return gameMapper.toGameDetailsDto(getGameById(gameId));
+    }
+
+    public GameEntity getGameById(String gameId) {
+        if (Util.nullOrEmpty(gameId)) {
+            return null;
+        }
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(gameId));
+
+        return mongoTemplate.findOne(query, GameEntity.class);
+    }
+
 
     public Page<GameEntity> filterGames(
             GameFilter filter,
@@ -112,43 +132,11 @@ public class GameService {
         return new PageImpl<>(results, pageable, total);
     }
 
-    public void syncGames() {
-        // todo check the create at to not add all the games
-        log.info("Starting full game sync...");
-
-        Set<Long> popularIds = igdbService.getPopularGamesIds();
-
-        final int batchSize = 100;
-
-        List<GameEntity> buffer = new ArrayList<>(batchSize);
-
-        igdbService.streamAllGames(games -> {
-
-            for (Game game : games) {
-
-                boolean popular = popularIds.contains(game.getId());
-
-                GameEntity entity =
-                        gameMapper.toEntity(game, popular);
-
-                buffer.add(entity);
-
-                // Save batch
-                if (buffer.size() >= batchSize) {
-
-                    gameRepository.saveAll(buffer);
-
-                    buffer.clear();
-                }
-            }
-        });
-
-        // Save leftovers
-        if (!buffer.isEmpty()) {
-            gameRepository.saveAll(buffer);
-            buffer.clear();
-        }
-
-        log.info("Game sync completed successfully.");
+    public GameSearchFilters getGameSearchFilters() {
+        List<GenreEntity> genreEntities = mongoTemplate.findAll(GenreEntity.class);
+        List<GameModeEntity> modeEntities = mongoTemplate.findAll(GameModeEntity.class);
+        List<PlatformEntity> platformEntities = mongoTemplate.findAll(PlatformEntity.class);
+        List<GameTypeEntity> types = mongoTemplate.findAll(GameTypeEntity.class);
+        return new GameSearchFilters(genreEntities, modeEntities, platformEntities, types);
     }
 }
