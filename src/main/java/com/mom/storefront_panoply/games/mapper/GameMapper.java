@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -228,6 +229,24 @@ public class GameMapper {
         return gameModesDbo;
     }
 
+    public CollectionEntity toCollection(Collection collection) {
+        return CollectionEntity.builder()
+                .id(collection.getId())
+                .name(collection.getName())
+                .games(collection.getGames())
+                .asParentRelations(collection.getAsParentRelations())
+                .asChildRelations(collection.getAsChildRelations())
+                .build();
+    }
+
+    public FranchiseEntity toFranchise(Franchise franchise) {
+        return FranchiseEntity.builder()
+                .id(franchise.getId())
+                .name(franchise.getName())
+                .url(franchise.getUrl())
+                .games(franchise.getGames())
+                .build();
+    }
 
 
 }

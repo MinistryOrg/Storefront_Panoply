@@ -272,10 +272,106 @@ public class IgdbService {
         log.info("IGDB streaming finished.");
     }
 
-    public void streamAllCollection(Consumer<List<Collection>> pageConsumer) {
+    public void getAllCollections(Consumer<List<Collection>> pageConsumer) {
+        int offset = 0;
+        final int limit = 100;
+
+        log.info("Starting IGDB collections full sync...");
+
+        while (true) {
+            String size = "limit " + limit + "; offset " + offset + ";";
+            String body = """
+                    fields as_child_relations,as_parent_relations,checksum,created_at,games,name,slug,type,updated_at,url;
+                """ + size + ";";
+
+            List<Collection> collections;
+
+            try {
+                collections = igdbClient.getCollections(body);
+            } catch (Exception e) {
+                log.error("Failed fetching collections at offset {}", offset, e);
+                break;
+            }
+
+            if (collections == null || collections.isEmpty()) {
+                log.info("No more collections.");
+                break;
+            }
+
+            int fetched = collections.size();
+            log.info("Fetched {} collections at offset {}", fetched, offset);
+
+            pageConsumer.accept(collections);
+            collections.clear();
+
+            if (fetched < limit) {
+                log.info("Last page of collections reached.");
+                break;
+            }
+
+            offset += limit;
+
+            try {
+                Thread.sleep(260); // respect IGDB rate limits
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        log.info("IGDB collections streaming finished.");
     }
 
-    public void streamAllFranchise(Consumer<Franchise> pageConsumer) {
+    public void getAllFranchises(Consumer<List<Franchise>> pageConsumer) {
+        int offset = 0;
+        final int limit = 100;
+
+        log.info("Starting IGDB franchises full sync...");
+
+        while (true) {
+            String size = "limit " + limit + "; offset " + offset + ";";
+
+            String body = """
+                    fields checksum,created_at,games,name,slug,updated_at,url;
+                """ + size + ";";
+
+            List<Franchise> franchises;
+
+            try {
+                franchises = igdbClient.getFranchises(body);
+            } catch (Exception e) {
+                log.error("Failed fetching franchises at offset {}", offset, e);
+                break;
+            }
+
+            if (franchises == null || franchises.isEmpty()) {
+                log.info("No more franchises.");
+                break;
+            }
+
+            int fetched = franchises.size();
+            log.info("Fetched {} franchises at offset {}", fetched, offset);
+
+            pageConsumer.accept(franchises);
+            franchises.clear();
+
+            if (fetched < limit) {
+                log.info("Last page of franchises reached.");
+                break;
+            }
+
+            offset += limit;
+
+            try {
+                Thread.sleep(260);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        log.info("IGDB franchises streaming finished.");
     }
+
 }
 

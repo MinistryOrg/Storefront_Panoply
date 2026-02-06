@@ -71,7 +71,62 @@ public class SyncGamesService {
     }
 
 
-    // --- NEW: weekly job to sync filter info (genres/platforms/game types/game modes)
+    @Scheduled(cron = "0 0 8 * * *", zone = "Europe/Greece")
+    public void syncCollectionsFranchises() {
+        log.info("Starting full game, collection, and franchise sync...");
+
+        final int batchSize = 100;
+        // Sync Collections
+        List<CollectionEntity> collectionBuffer = new ArrayList<>(batchSize);
+        try {
+            igdbService.getAllCollections(collections -> {
+                for (Collection collection : collections) {
+                    CollectionEntity entity = gameMapper.toCollection(collection); // map IGDB Collection -> Mongo entity
+                    collectionBuffer.add(entity);
+
+                    if (collectionBuffer.size() >= batchSize) {
+                        Util.bulkUpsert(collectionBuffer, CollectionEntity.class, mongoTemplate);
+                        collectionBuffer.clear();
+                    }
+                }
+            });
+
+            if (!collectionBuffer.isEmpty()) {
+                Util.bulkUpsert(collectionBuffer, CollectionEntity.class, mongoTemplate);
+                collectionBuffer.clear();
+            }
+            log.info("Collection sync completed successfully.");
+        } catch (Exception e) {
+            log.error("Failed to sync collections: {}", e.getMessage(), e);
+        }
+
+        // sync franchises
+        List<FranchiseEntity> franchiseBuffer = new ArrayList<>(batchSize);
+        try {
+            igdbService.getAllFranchises(franchises -> {
+                for (Franchise franchise : franchises) {
+                    FranchiseEntity entity = gameMapper.toFranchise(franchise);
+                    franchiseBuffer.add(entity);
+
+                    if (franchiseBuffer.size() >= batchSize) {
+                        Util.bulkUpsert(franchiseBuffer, FranchiseEntity.class, mongoTemplate);
+                        franchiseBuffer.clear();
+                    }
+                }
+            });
+
+            if (!franchiseBuffer.isEmpty()) {
+                Util.bulkUpsert(franchiseBuffer, FranchiseEntity.class, mongoTemplate);
+                franchiseBuffer.clear();
+            }
+            log.info("Franchise sync completed successfully.");
+        } catch (Exception e) {
+            log.error("Failed to sync franchises: {}", e.getMessage(), e);
+        }
+
+        log.info("Full sync completed successfully.");
+    }
+
     // runs once a week at 07:00 on Mondays
     @Scheduled(cron = "0 0 7 * * MON", zone = "Europe/Greece")
     public void syncGameFilterInfo() {

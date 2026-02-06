@@ -1,6 +1,7 @@
 package com.mom.storefront_panoply.games.controller;
 
 import com.mom.storefront_panoply.games.filters.GameFilter;
+import com.mom.storefront_panoply.games.model.dbo.FranchiseEntity;
 import com.mom.storefront_panoply.games.model.dbo.GameEntity;
 import com.mom.storefront_panoply.games.model.dto.*;
 import com.mom.storefront_panoply.games.service.GameService;
@@ -40,4 +41,5 @@ public class GameController {
     public ResponseEntity<GameSearchFilters> gameSearchFilters() {
         return ResponseEntity.ok(gameService.getGameSearchFilters());
     }
+
 }

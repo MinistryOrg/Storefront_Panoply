@@ -31,4 +31,10 @@ public interface IgdbClient {
 
     @PostMapping(value = "/game_time_to_beats", consumes = "text/plain", produces = "application/json")
     List<GameTimeToBeats> getGameTimeToBeats(@RequestBody String body);
+
+    @PostMapping(value = "/franchises", consumes = "text/plain", produces = "application/json")
+    List<Franchise> getFranchises(@RequestBody String body);
+
+    @PostMapping(value = "/collections", consumes = "text/plain", produces = "application/json")
+    List<Collection> getCollections(@RequestBody String body);
 }

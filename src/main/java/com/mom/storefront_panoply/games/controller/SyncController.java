@@ -31,5 +31,11 @@ public class SyncController {
         return ResponseEntity.ok("All good boss");
     }
 
+    @GetMapping("/sync-collections-franchises")
+    public ResponseEntity<String> syncCollectionsFranchises() {
+        syncGamesService.syncCollectionsFranchises();
+        return ResponseEntity.ok("All good boss");
+    }
+
 
 }
