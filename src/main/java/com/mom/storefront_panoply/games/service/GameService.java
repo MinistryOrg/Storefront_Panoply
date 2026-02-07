@@ -3,9 +3,7 @@ package com.mom.storefront_panoply.games.service;
 import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.mapper.GameMapper;
 import com.mom.storefront_panoply.games.model.dbo.*;
-import com.mom.storefront_panoply.games.model.dto.GameDetailsDto;
-import com.mom.storefront_panoply.games.model.dto.GameDto;
-import com.mom.storefront_panoply.games.model.dto.GameSearchFilters;
+import com.mom.storefront_panoply.games.model.dto.*;
 import com.mom.storefront_panoply.games.repository.GameRepository;
 import com.mom.storefront_panoply.igdb.model.Game;
 import com.mom.storefront_panoply.igdb.model.Genre;
@@ -14,6 +12,7 @@ import com.mom.storefront_panoply.tools.PagedResponse;
 import com.mom.storefront_panoply.tools.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -39,13 +38,6 @@ public class GameService {
 
     public PagedResponse<GameDto> getGames(GameFilter gamesFilter, Integer size, Integer page) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<GameEntity> entities;
-
-        if (Util.nullOrEmpty(gamesFilter)) {
-            entities = gameRepository.findAll(pageable);
-            return PagedResponse.from(entities, gameMapper::toGameDto);
-        }
-
         return PagedResponse.from(filterGames(gamesFilter, pageable), gameMapper::toGameDto);
     }
 
@@ -139,4 +131,57 @@ public class GameService {
         List<GameTypeEntity> types = mongoTemplate.findAll(GameTypeEntity.class);
         return new GameSearchFilters(genreEntities, modeEntities, platformEntities, types);
     }
+
+    public CollectionsResponse getCollection(Integer size, Integer page) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Query query = new Query();
+
+        // Count before pagination
+        long total = mongoTemplate.count(query, CollectionEntity.class);
+
+        // Apply pagination
+        query.with(pageable);
+
+        // Fetch data
+        List<CollectionEntity> entities =
+                mongoTemplate.find(query, CollectionEntity.class);
+
+        // Convert List to  Page
+        Page<CollectionEntity> pageResult =
+                new PageImpl<>(entities, pageable, total);
+
+        return CollectionsResponse.builder()
+                .collections(PagedResponse.from(pageResult))
+                .build();
+    }
+
+    public FranchisesResponse getFranchise(Integer size, Integer page) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Query query = new Query();
+
+        // Count before pagination
+        long total = mongoTemplate.count(query, CollectionEntity.class);
+
+        // Apply pagination
+        query.with(pageable);
+
+        // Fetch data
+        List<FranchiseEntity> entities =
+                mongoTemplate.find(query, FranchiseEntity.class);
+
+        // Convert List to  Page
+        Page<FranchiseEntity> pageResult =
+                new PageImpl<>(entities, pageable, total);
+
+        return FranchisesResponse.builder()
+                .franchises(PagedResponse.from(pageResult))
+                .build();
+    }
+
+
+
 }

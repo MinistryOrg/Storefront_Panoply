@@ -11,7 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GameResponse {
-    private String status;
-    private String message;
     private PagedResponse<GameDto> games;
 }

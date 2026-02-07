@@ -39,4 +39,5 @@ public class PagedResponse<T> {
         Page<T> mapped = page.map(mapper);
         return from(mapped);
     }
+
 }

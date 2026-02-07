@@ -25,7 +25,7 @@ public class SyncGamesService {
     private final GameMapper gameMapper;
     private final MongoTemplate mongoTemplate;
 
-    @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Greece")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Athens")
     public void syncGames() {
         // todo check the create at to not add all the games
         // todo add time to beat, is for each game or i can do it for all?
@@ -71,7 +71,7 @@ public class SyncGamesService {
     }
 
 
-    @Scheduled(cron = "0 0 8 * * *", zone = "Europe/Greece")
+    @Scheduled(cron = "0 0 8 * * *", zone = "Europe/Athens")
     public void syncCollectionsFranchises() {
         log.info("Starting full game, collection, and franchise sync...");
 
@@ -128,7 +128,7 @@ public class SyncGamesService {
     }
 
     // runs once a week at 07:00 on Mondays
-    @Scheduled(cron = "0 0 7 * * MON", zone = "Europe/Greece")
+    @Scheduled(cron = "0 0 7 * * MON", zone = "Europe/Athens")
     public void syncGameFilterInfo() {
         log.info("Starting weekly game filter info sync (Monday 07:00)...");
 

@@ -11,7 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GameDetailsResponse {
-    private String status;
-    private String message;
     private GameDetailsDto gamesDetails;
 }
