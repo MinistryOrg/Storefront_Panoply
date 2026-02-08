@@ -4,15 +4,11 @@ import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.mapper.GameMapper;
 import com.mom.storefront_panoply.games.model.dbo.*;
 import com.mom.storefront_panoply.games.model.dto.*;
-import com.mom.storefront_panoply.games.repository.GameRepository;
 import com.mom.storefront_panoply.igdb.model.Game;
-import com.mom.storefront_panoply.igdb.model.Genre;
-import com.mom.storefront_panoply.igdb.service.IgdbService;
 import com.mom.storefront_panoply.tools.PagedResponse;
 import com.mom.storefront_panoply.tools.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -20,25 +16,26 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class GameService {
-    private final IgdbService igdbService;
-    private final GameRepository gameRepository;
     private final GameMapper gameMapper;
     private final MongoTemplate mongoTemplate;
 
     public PagedResponse<GameDto> getGames(GameFilter gamesFilter, Integer size, Integer page) {
         Pageable pageable = PageRequest.of(page, size);
         return PagedResponse.from(filterGames(gamesFilter, pageable), gameMapper::toGameDto);
+    }
+
+    public List<GameEntity> getGames(GameFilter gamesFilter, Boolean lightWeight) {
+        return filterGames(gamesFilter, lightWeight);
     }
 
     public GameDetailsDto getGame(String gameId) {
@@ -56,59 +53,16 @@ public class GameService {
         return mongoTemplate.findOne(query, GameEntity.class);
     }
 
+    public List<GameEntity> filterGames(GameFilter filter, Boolean lightWeight) {
+        Query query = buildGameQuery(filter, lightWeight);
+        return mongoTemplate.find(query, GameEntity.class);
+    }
 
     public Page<GameEntity> filterGames(
             GameFilter filter,
             Pageable pageable
     ) {
-
-        Query query = new Query();
-        List<Criteria> criteriaList = new ArrayList<>();
-
-        // Filter by ID
-        if (!Util.nullOrEmpty(filter.getGameId())) {
-            criteriaList.add(Criteria.where("id").is(filter.getGameId()));
-        }
-
-        // Popular
-        if (!Util.nullOrEmpty(filter.getPopular())) {
-            criteriaList.add(Criteria.where("isPopular").is(filter.getPopular()));
-        }
-
-        // Trending
-        if (Boolean.TRUE.equals(filter.getTrending())) {
-            criteriaList.add(Criteria.where("hypes").gt(100));
-        }
-
-        // Hidden Gems (high rating low votes?)
-        if (Boolean.TRUE.equals(filter.getHiddenGems())) {
-            criteriaList.add(
-                    new Criteria().andOperator(
-                            Criteria.where("rating").gte(8),
-                            Criteria.where("totalRatingCount").lt(500)
-                    )
-            );
-        }
-
-        // Recently added
-        if (!Util.nullOrEmpty(filter.getCreatedAt())) {
-            criteriaList.add(
-                    Criteria.where("createdAt").gte(filter.getCreatedAt())
-            );
-        }
-
-        // Upcoming
-        if (!Util.nullOrEmpty(filter.getFirstReleasedDate())) {
-            criteriaList.add(
-                    Criteria.where("firstReleaseDate").gte(filter.getFirstReleasedDate())
-            );
-        }
-
-        if (!criteriaList.isEmpty()) {
-            query.addCriteria(new Criteria().andOperator(
-                    criteriaList.toArray(new Criteria[0])
-            ));
-        }
+        Query query = buildGameQuery(filter, true);
 
         // Pagination
         query.with(pageable);
@@ -123,6 +77,71 @@ public class GameService {
 
         return new PageImpl<>(results, pageable, total);
     }
+
+    private Query buildGameQuery(GameFilter filter, Boolean lightWeight) {
+        Query query = new Query();
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        if (lightWeight) {
+            query.fields()
+                    .include("_id")
+                    .include("name")
+                    .include("summary")
+                    .include("cover.imageId")
+                    .include("totalRating")
+                    .include("rating")
+                    .include("screenshots.imageId")
+                    .include("genres.name")
+                    .include("videos");
+        }
+
+        // Filter by single ID
+        if (!Util.nullOrEmpty(filter.getGameId())) {
+            criteriaList.add(Criteria.where("_id").is(filter.getGameId()));
+        }
+
+        // Filter by multiple IDs
+        if (!Util.nullOrEmpty(filter.getGameIds())) {
+            criteriaList.add(Criteria.where("_id").in(filter.getGameIds()));
+        }
+
+        // Popular
+        if (filter.getPopular() != null) {
+            criteriaList.add(Criteria.where("isPopular").is(filter.getPopular()));
+        }
+
+        // Trending
+        if (Boolean.TRUE.equals(filter.getTrending())) {
+            criteriaList.add(Criteria.where("hypes").gt(40));
+        }
+
+        // Hidden Gems
+        if (Boolean.TRUE.equals(filter.getHiddenGems())) {
+            criteriaList.add(
+                    new Criteria().andOperator(
+                            Criteria.where("rating").gte(8),
+                            Criteria.where("totalRatingCount").lt(500)
+                    )
+            );
+        }
+
+        // Recently added
+        if (filter.getCreatedAt() != null) {
+            criteriaList.add(Criteria.where("createdAt").gte(filter.getCreatedAt()));
+        }
+
+        // Upcoming
+        if (filter.getFirstReleasedDate() != null) {
+            criteriaList.add(Criteria.where("firstReleaseDate").gte(filter.getFirstReleasedDate()));
+        }
+
+        if (!criteriaList.isEmpty()) {
+            query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+        }
+
+        return query;
+    }
+
 
     public GameSearchFilters getGameSearchFilters() {
         List<GenreEntity> genreEntities = mongoTemplate.findAll(GenreEntity.class);
@@ -148,9 +167,49 @@ public class GameService {
         List<CollectionEntity> entities =
                 mongoTemplate.find(query, CollectionEntity.class);
 
-        // Convert List to  Page
-        Page<CollectionEntity> pageResult =
-                new PageImpl<>(entities, pageable, total);
+        // Collect all game IDs
+        Set<String> allGameIds = new HashSet<>();
+        for (CollectionEntity collectionEntity : entities) {
+            List<GameEntity> games = collectionEntity.getGames();
+            if (!Util.nullOrEmpty(games)) {
+                for (GameEntity game : games) {
+                    if (game.getId() != null) {
+                        allGameIds.add(game.getId());
+                    }
+                }
+            }
+        }
+
+        // Fetch all games in one query
+        List<GameEntity> allGames = getGames(GameFilter.builder().gameIds(allGameIds).build(), true);
+
+        // Map game ID to game entity using a HashMap
+        Map<String, GameEntity> gameMap = new HashMap<>();
+        for (GameEntity game : allGames) {
+            if (game.getId() != null) {
+                gameMap.put(game.getId(), game);
+            }
+        }
+
+        // Build franchise DTOs
+        List<CollectionDto> collectionDtos = new ArrayList<>(entities.size());
+        for (CollectionEntity collectionEntity : entities) {
+            List<GameEntity> collectionGames = new ArrayList<>();
+            List<GameEntity> games = collectionEntity.getGames();
+            if (!Util.nullOrEmpty(games)) {
+                for (GameEntity g : games) {
+                    GameEntity mapped = gameMap.get(g.getId());
+                    if (mapped != null) {
+                        collectionGames.add(mapped);
+                    }
+                }
+            }
+            collectionDtos.add(gameMapper.toCollection(collectionEntity, collectionGames));
+        }
+
+        // Wrap in Page
+        Page<CollectionDto> pageResult = new PageImpl<>(collectionDtos, pageable, total);
+
 
         return CollectionsResponse.builder()
                 .collections(PagedResponse.from(pageResult))
@@ -160,28 +219,80 @@ public class GameService {
     public FranchisesResponse getFranchise(Integer size, Integer page) {
 
         Pageable pageable = PageRequest.of(page, size);
-
         Query query = new Query();
 
-        // Count before pagination
-        long total = mongoTemplate.count(query, CollectionEntity.class);
+        // Count total franchises
+        long total = mongoTemplate.count(query, FranchiseEntity.class);
 
-        // Apply pagination
+        // Fetch paginated franchises
         query.with(pageable);
+        List<FranchiseEntity> franchises = mongoTemplate.find(query, FranchiseEntity.class);
 
-        // Fetch data
-        List<FranchiseEntity> entities =
-                mongoTemplate.find(query, FranchiseEntity.class);
+        // Collect all game IDs
+        Set<String> allGameIds = new HashSet<>();
+        for (FranchiseEntity franchise : franchises) {
+            List<GameEntity> games = franchise.getGames();
+            if (!Util.nullOrEmpty(games)) {
+                for (GameEntity game : games) {
+                    if (game.getId() != null) {
+                        allGameIds.add(game.getId());
+                    }
+                }
+            }
+        }
 
-        // Convert List to  Page
-        Page<FranchiseEntity> pageResult =
-                new PageImpl<>(entities, pageable, total);
+        // Fetch all games in one query
+        List<GameEntity> allGames = getGames(GameFilter.builder().gameIds(allGameIds).build(), true);
+
+        // Map game ID to game entity using a HashMap
+        Map<String, GameEntity> gameMap = new HashMap<>();
+        for (GameEntity game : allGames) {
+            if (game.getId() != null) {
+                gameMap.put(game.getId(), game);
+            }
+        }
+
+        // Build franchise DTOs
+        List<FranchiseDto> franchiseDtos = new ArrayList<>(franchises.size());
+        for (FranchiseEntity franchise : franchises) {
+            List<GameEntity> franchiseGames = new ArrayList<>();
+            List<GameEntity> games = franchise.getGames();
+            if (!Util.nullOrEmpty(games)) {
+                for (GameEntity g : games) {
+                    GameEntity mapped = gameMap.get(g.getId());
+                    if (mapped != null) {
+                        franchiseGames.add(mapped);
+                    }
+                }
+            }
+            franchiseDtos.add(gameMapper.toFranchise(franchise, franchiseGames));
+        }
+
+        // Wrap in Page
+        Page<FranchiseDto> pageResult = new PageImpl<>(franchiseDtos, pageable, total);
 
         return FranchisesResponse.builder()
                 .franchises(PagedResponse.from(pageResult))
                 .build();
     }
 
+
+    public Set<String> getGameIds(List<GameEntity> games) {
+        if(Util.nullOrEmpty(games)) {
+            return new HashSet<>();
+        }
+
+        Set<String> set = new HashSet<>(games.size());
+
+        for (GameEntity game : games) {
+            String id = game.getId();
+            if (id != null) {
+                set.add(id);
+            }
+        }
+
+        return set;
+    }
 
 
 }

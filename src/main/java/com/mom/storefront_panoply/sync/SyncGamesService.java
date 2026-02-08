@@ -1,28 +1,36 @@
-package com.mom.storefront_panoply.games.service;
+package com.mom.storefront_panoply.sync;
 
+import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.mapper.GameMapper;
 import com.mom.storefront_panoply.games.model.dbo.*;
-import com.mom.storefront_panoply.games.repository.GameRepository;
+import com.mom.storefront_panoply.games.service.GameService;
 import com.mom.storefront_panoply.igdb.model.*;
 import com.mom.storefront_panoply.igdb.service.IgdbService;
+import com.mom.storefront_panoply.sync.model.SyncMetadata;
+import com.mom.storefront_panoply.sync.model.MetadataType;
+import com.mom.storefront_panoply.sync.model.SyncType;
 import com.mom.storefront_panoply.tools.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class SyncGamesService {
     private final IgdbService igdbService;
-    private final GameRepository gameRepository;
     private final GameMapper gameMapper;
+    private final GameService gameService;
     private final MongoTemplate mongoTemplate;
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Athens")
@@ -30,6 +38,8 @@ public class SyncGamesService {
         // todo check the create at to not add all the games
         // todo add time to beat, is for each game or i can do it for all?
         log.info("Starting full game sync...");
+
+        SyncMetadata syncMetadata = getSyncMetadata(MetadataType.GAME);
 
         Set<Long> popularIds = igdbService.getPopularGamesIds();
 
@@ -66,7 +76,7 @@ public class SyncGamesService {
             log.error("Failed to sync all games : " + e.getMessage());
             throw new RuntimeException(e);
         }
-
+        saveSyncMetadata(MetadataType.GAME);
         log.info("Game sync completed successfully.");
     }
 
@@ -81,9 +91,10 @@ public class SyncGamesService {
         try {
             igdbService.getAllCollections(collections -> {
                 for (Collection collection : collections) {
+                    //Set<String> gameIds = Util.extractValues(collection.getGames());
+                    //List<GameEntity> gameEntities = gameService.getGames(GameFilter.builder().gameIds(gameIds).build(), true);
                     CollectionEntity entity = gameMapper.toCollection(collection); // map IGDB Collection -> Mongo entity
                     collectionBuffer.add(entity);
-
                     if (collectionBuffer.size() >= batchSize) {
                         Util.bulkUpsert(collectionBuffer, CollectionEntity.class, mongoTemplate);
                         collectionBuffer.clear();
@@ -157,7 +168,42 @@ public class SyncGamesService {
         log.info("Weekly game filter info sync finished.");
     }
 
-    // sync franchise
+    public void saveSyncMetadata(MetadataType type) {
+        Instant now = Instant.now();
+        long epochSeconds = now.getEpochSecond();
 
-    // sync collection
+        SyncMetadata updatedSyncMetadata = SyncMetadata.builder()
+                .type(type)
+                .timestamp(epochSeconds)
+                .build();
+
+        // check if already exist
+        SyncMetadata metadata = getSyncMetadata(type);
+        if (!Util.nullOrEmpty(metadata)) {
+            updatedSyncMetadata.setId(metadata.getId());
+        }
+
+        mongoTemplate.insert(updatedSyncMetadata);
+    }
+
+    public SyncMetadata getSyncMetadata(MetadataType type) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("type").is(type));
+        SyncMetadata metadata = mongoTemplate.findOne(query, SyncMetadata.class);
+
+        if (Util.nullOrEmpty(metadata)) {
+            return mongoTemplate.insert(SyncMetadata.builder().type(MetadataType.GAME).timestamp(null).id(UUID.randomUUID().toString()).build());
+        }
+
+        return metadata;
+    }
+
+    // todo times to beat
+
+    public String getQuery(SyncType type) {
+        if (type.equals(SyncType.HARD)) {
+          return "";
+        }
+        return "";
+    }
 }

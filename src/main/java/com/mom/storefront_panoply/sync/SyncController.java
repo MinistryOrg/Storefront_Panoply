@@ -1,6 +1,5 @@
-package com.mom.storefront_panoply.games.controller;
+package com.mom.storefront_panoply.sync;
 
-import com.mom.storefront_panoply.games.service.SyncGamesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

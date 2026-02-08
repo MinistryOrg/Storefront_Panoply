@@ -23,6 +23,7 @@ public class IgdbService {
             -get franchise
             -fix the query to get only the latest updated or created to not update all the games every time
      */
+
     public Set<Long> getPopularGamesIds() {
 
         String popularityBody =
@@ -123,7 +124,7 @@ public class IgdbService {
                       storyline,
                       first_release_date,
                       created_at, updated_at,
-                      status,
+                      status, hypes,
 
                       total_rating,
                       total_rating_count,

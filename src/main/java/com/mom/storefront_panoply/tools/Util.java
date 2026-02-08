@@ -8,11 +8,12 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 
 public class Util {
+
+    // Checks
     public static boolean nullOrEmpty(Object obj) {
         boolean nullOrEmpty = obj == null ||
                 (obj instanceof CharSequence && ((CharSequence) obj).isEmpty());
@@ -23,6 +24,7 @@ public class Util {
         return nullOrEmpty;
     }
 
+    // Database (in the future maybe i will create extra service)
     public static <T> void bulkUpsert(List<T> entities, Class<T> entityClass, MongoTemplate mongoTemplate) {
 
         if (entities == null || entities.isEmpty()) {
@@ -62,4 +64,23 @@ public class Util {
 
         bulkOps.execute();
     }
+
+    public static <T, R> Set<R> extractValues(
+            List<T> list,
+            Function<? super T, ? extends R> extractor) {
+
+        Objects.requireNonNull(list);
+        Objects.requireNonNull(extractor);
+
+        Set<R> set = new HashSet<>(list.size());
+
+        for (T item : list) {
+            R v = extractor.apply(item);
+            if (v != null) set.add(v);
+        }
+
+        return set;
+    }
+
+
 }

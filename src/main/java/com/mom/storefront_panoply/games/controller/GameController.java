@@ -1,6 +1,7 @@
 package com.mom.storefront_panoply.games.controller;
 
 import com.mom.storefront_panoply.games.filters.GameFilter;
+import com.mom.storefront_panoply.games.filters.SearchFilter;
 import com.mom.storefront_panoply.games.model.dto.*;
 import com.mom.storefront_panoply.games.service.GameService;
 import com.mom.storefront_panoply.tools.PagedResponse;
@@ -21,6 +22,12 @@ public class GameController {
         return ResponseEntity.ok(GameResponse.builder().games(games).build());
     }
 
+    // todo search
+    @PostMapping("search")
+    public ResponseEntity<GameSearchResult> getGameSearchResult(@RequestBody SearchFilter searchFilter){
+        return null;
+    }
+
     @GetMapping("game")
     public ResponseEntity<GameDetailsResponse> getGame(@RequestParam String gameId) {
         GameDetailsDto game = gameService.getGame(gameId);
@@ -32,15 +39,17 @@ public class GameController {
         return ResponseEntity.ok(gameService.getGameSearchFilters());
     }
 
+
+    // todo game dto to return in the collections and franchise
+    // todo filters - by game
+
     @GetMapping("collections")
-    public ResponseEntity<CollectionsResponse> getCollections(@RequestParam(defaultValue = "10") Integer size,
-                                                           @RequestParam(defaultValue = "0") Integer page) {
+    public ResponseEntity<CollectionsResponse> getCollections(@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "0") Integer page) {
         return ResponseEntity.ok(gameService.getCollection(size, page));
     }
 
     @GetMapping("franchises")
-    public ResponseEntity<FranchisesResponse> getFranchises(@RequestParam(defaultValue = "10") Integer size,
-                                                           @RequestParam(defaultValue = "0") Integer page) {
+    public ResponseEntity<FranchisesResponse> getFranchises(@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "0") Integer page) {
         return ResponseEntity.ok(gameService.getFranchise(size, page));
     }
 

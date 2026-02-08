@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Builder
 @AllArgsConstructor
 public class GameFilter {
     private String gameId;
+    private Set<String> gameIds;
     private Boolean popular;
     private Boolean trending;
     private Boolean hiddenGems;

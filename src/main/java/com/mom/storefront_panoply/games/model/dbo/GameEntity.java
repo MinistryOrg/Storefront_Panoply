@@ -1,5 +1,6 @@
 package com.mom.storefront_panoply.games.model.dbo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mom.storefront_panoply.igdb.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GameEntity {
     @Id
     private String id;
