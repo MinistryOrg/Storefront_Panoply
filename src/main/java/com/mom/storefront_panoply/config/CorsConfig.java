@@ -31,7 +31,7 @@ public class CorsConfig { // to allow the front end to call the api
         configuration.setAllowedHeaders(allowedHeaders);
         configuration.setExposedHeaders(expectedHeaders);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration); // sets the path that are allowed
+        source.registerCorsConfiguration("/panoply/**", configuration); // sets the path that are allowed
         return source;
     }
 }
