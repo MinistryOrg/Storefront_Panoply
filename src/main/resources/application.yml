@@ -14,3 +14,10 @@ feign:
       default:
         connectTimeout: 5000
         readTimeout: 10000
+
+
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
+  allowed-headers: "*"
+  exposed-headers: "*"

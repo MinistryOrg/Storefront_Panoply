@@ -39,8 +39,6 @@ public class GameController {
         return ResponseEntity.ok(gameService.getGameSearchFilters());
     }
 
-
-    // todo game dto to return in the collections and franchise
     // todo filters - by game
 
     @GetMapping("collections")
@@ -51,6 +49,11 @@ public class GameController {
     @GetMapping("franchises")
     public ResponseEntity<FranchisesResponse> getFranchises(@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "0") Integer page) {
         return ResponseEntity.ok(gameService.getFranchise(size, page));
+    }
+
+    @PostMapping("search-game")
+    public ResponseEntity<GameSearchResult> searchGame(@RequestBody SearchFilter searchFilter) {
+        return null;
     }
 
 }
