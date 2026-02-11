@@ -12,6 +12,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class GameFilter {
     private String gameId;
+    private String gameName;
+    private String companyName;
     private Set<String> gameIds;
     private Boolean popular;
     private Boolean trending;

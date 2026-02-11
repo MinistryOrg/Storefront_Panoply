@@ -22,10 +22,10 @@ public class GameController {
         return ResponseEntity.ok(GameResponse.builder().games(games).build());
     }
 
-    // todo search
-    @PostMapping("search")
-    public ResponseEntity<GameSearchResult> getGameSearchResult(@RequestBody SearchFilter searchFilter){
-        return null;
+    @PostMapping("search-game")
+    public ResponseEntity<GameSearchResult> searchGame(@RequestBody SearchFilter searchFilter,  @RequestParam(defaultValue = "10") Integer size,
+                                                       @RequestParam(defaultValue = "0") Integer page){
+        return ResponseEntity.ok(gameService.searchGame(searchFilter, page, size));
     }
 
     @GetMapping("game")
@@ -49,11 +49,6 @@ public class GameController {
     @GetMapping("franchises")
     public ResponseEntity<FranchisesResponse> getFranchises(@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "0") Integer page) {
         return ResponseEntity.ok(gameService.getFranchise(size, page));
-    }
-
-    @PostMapping("search-game")
-    public ResponseEntity<GameSearchResult> searchGame(@RequestBody SearchFilter searchFilter) {
-        return null;
     }
 
 }

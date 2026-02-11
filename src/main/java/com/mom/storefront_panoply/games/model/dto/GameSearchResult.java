@@ -1,5 +1,6 @@
 package com.mom.storefront_panoply.games.model.dto;
 
+import com.mom.storefront_panoply.tools.PagedResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class GameSearchResult {
-    private List<GameDto> gamesByName;
-    private List<GameDto> gamesByCompany;
+    private PagedResponse<GameDto> gamesByName;
+    private PagedResponse<GameDto> gamesByCompany;
 }

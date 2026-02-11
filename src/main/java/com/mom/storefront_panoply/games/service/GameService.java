@@ -1,6 +1,7 @@
 package com.mom.storefront_panoply.games.service;
 
 import com.mom.storefront_panoply.games.filters.GameFilter;
+import com.mom.storefront_panoply.games.filters.SearchFilter;
 import com.mom.storefront_panoply.games.mapper.GameMapper;
 import com.mom.storefront_panoply.games.model.dbo.*;
 import com.mom.storefront_panoply.games.model.dto.*;
@@ -9,6 +10,7 @@ import com.mom.storefront_panoply.tools.PagedResponse;
 import com.mom.storefront_panoply.tools.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -79,7 +81,7 @@ public class GameService {
     private Query buildGameQuery(GameFilter filter, Boolean lightWeight) {
         Query query = new Query();
         List<Criteria> criteriaList = new ArrayList<>();
-
+        // don't return all fields
         if (lightWeight) {
             query.fields()
                     .include("_id")
@@ -102,6 +104,28 @@ public class GameService {
         if (!Util.nullOrEmpty(filter.getGameIds())) {
             criteriaList.add(Criteria.where("_id").in(filter.getGameIds()));
         }
+
+        // Filter by name
+        if (!Util.nullOrEmpty(filter.getGameName())) {
+            criteriaList.add(Criteria.where("name").is(filter.getGameId()));
+        }
+
+        // filter by name
+        if (!Util.nullOrEmpty(filter.getGameName())) {
+            criteriaList.add(
+                    Criteria.where("name")
+                            .regex(filter.getGameName(), "i")
+            );
+        }
+
+        // filter by company name
+        if (!Util.nullOrEmpty(filter.getCompanyName())) {
+            criteriaList.add(
+                    Criteria.where("involvedCompanies.company.name")
+                            .regex(filter.getCompanyName(), "i")
+            );
+        }
+
 
         // Popular
         if (filter.getPopular() != null) {
@@ -212,6 +236,17 @@ public class GameService {
         return CollectionsResponse.builder()
                 .collections(PagedResponse.from(pageResult))
                 .build();
+    }
+
+    public GameSearchResult searchGame(SearchFilter searchFilter, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
+                gameName(searchFilter.getInput()).build(), pageable), gameMapper::toGameDto);
+
+        PagedResponse<GameDto> byCompany= PagedResponse.from(filterGames(GameFilter.builder().
+                gameName(searchFilter.getInput()).build(), pageable), gameMapper::toGameDto);
+
+        return GameSearchResult.builder().gamesByCompany(byCompany).gamesByName(byName).build();
     }
 
     public FranchisesResponse getFranchise(Integer size, Integer page) {
