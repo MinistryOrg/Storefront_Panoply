@@ -13,7 +13,7 @@ import java.util.List;
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
-
+    // TODO when we deploy the UI to the server we need to change it to specific ip
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")

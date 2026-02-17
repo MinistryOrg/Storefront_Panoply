@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -31,7 +32,7 @@ public class GameService {
 
     public PagedResponse<GameDto> getGames(GameFilter gamesFilter, Integer size, Integer page) {
         Pageable pageable = PageRequest.of(page, size);
-        return PagedResponse.from(filterGames(gamesFilter, pageable), gameMapper::toGameDto);
+        return PagedResponse.from(filterGames(gamesFilter, pageable, false), gameMapper::toGameDto);
     }
 
     public List<GameEntity> getGames(GameFilter gamesFilter, Boolean lightWeight) {
@@ -60,9 +61,16 @@ public class GameService {
 
     public Page<GameEntity> filterGames(
             GameFilter filter,
-            Pageable pageable
+            Pageable pageable,
+            Boolean startsWith
     ) {
-        Query query = buildGameQuery(filter, true);
+
+        Query query;
+        if (startsWith) {
+            query = buildSearchGameQuery(filter);
+        } else {
+            query = buildGameQuery(filter, true);
+        }
 
         // Pagination
         query.with(pageable);
@@ -164,6 +172,32 @@ public class GameService {
         return query;
     }
 
+    private Query buildSearchGameQuery(GameFilter filter) {
+        Query query = new Query();
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        // by game name starts with
+        if (!Util.nullOrEmpty(filter.getGameName())) {
+            criteriaList.add(startsWithIgnoreCase("name", filter.getGameName()));
+        }
+
+        // by company name that starts with
+        if (!Util.nullOrEmpty(filter.getCompanyName())) {
+            criteriaList.add(startsWithIgnoreCase("involvedCompanies.company.name", filter.getCompanyName()));
+        }
+
+        if (!criteriaList.isEmpty()) {
+            query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+        }
+
+        return query;
+    }
+
+
+    private Criteria startsWithIgnoreCase(String field, String value) {
+        return Criteria.where(field)
+                .regex("^" + Pattern.quote(value), "i");
+    }
 
     public GameSearchFilters getGameSearchFilters() {
         List<GenreEntity> genreEntities = mongoTemplate.findAll(GenreEntity.class);
@@ -241,10 +275,10 @@ public class GameService {
     public GameSearchResult searchGame(SearchFilter searchFilter, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
-                gameName(searchFilter.getInput()).build(), pageable), gameMapper::toGameDto);
+                gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
 
         PagedResponse<GameDto> byCompany= PagedResponse.from(filterGames(GameFilter.builder().
-                gameName(searchFilter.getInput()).build(), pageable), gameMapper::toGameDto);
+                gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
 
         return GameSearchResult.builder().gamesByCompany(byCompany).gamesByName(byName).build();
     }
