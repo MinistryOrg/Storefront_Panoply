@@ -11,15 +11,13 @@ import com.mom.storefront_panoply.tools.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.Nullable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -113,7 +111,7 @@ public class GameService {
             criteriaList.add(Criteria.where("_id").in(filter.getGameIds()));
         }
 
-        // Filter by name
+        // Filter by game id
         if (!Util.nullOrEmpty(filter.getGameName())) {
             criteriaList.add(Criteria.where("name").is(filter.getGameId()));
         }
@@ -142,8 +140,26 @@ public class GameService {
 
         // Trending
         if (Boolean.TRUE.equals(filter.getTrending())) {
-            criteriaList.add(Criteria.where("hypes").gt(40));
+
+            Criteria trendingCriteria = new Criteria().orOperator(
+
+                    // Upcoming hype
+                    Criteria.where("hypes").gte(30),
+
+                    // Recent release
+                    Criteria.where("firstReleaseDate")
+                            .gte(LocalDateTime.now().minusMonths(3))
+            );
+
+            query.addCriteria(trendingCriteria);
+
+            query.with(Sort.by(
+                    Sort.Order.desc("hypes"),
+                    Sort.Order.desc("aggregatedRatingCount"),
+                    Sort.Order.desc("firstReleaseDate")
+            ));
         }
+
 
         // Hidden Gems
         if (Boolean.TRUE.equals(filter.getHiddenGems())) {
@@ -277,7 +293,7 @@ public class GameService {
         PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
                 gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
 
-        PagedResponse<GameDto> byCompany= PagedResponse.from(filterGames(GameFilter.builder().
+        PagedResponse<GameDto> byCompany = PagedResponse.from(filterGames(GameFilter.builder().
                 gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
 
         return GameSearchResult.builder().gamesByCompany(byCompany).gamesByName(byName).build();
@@ -345,7 +361,7 @@ public class GameService {
 
 
     public Set<String> getGameIds(List<GameEntity> games) {
-        if(Util.nullOrEmpty(games)) {
+        if (Util.nullOrEmpty(games)) {
             return new HashSet<>();
         }
 

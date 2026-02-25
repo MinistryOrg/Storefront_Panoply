@@ -47,6 +47,8 @@ public class GameEntity {
 
     private Cover cover;
 
+    private Double popularity;
+
     /* ===================== Relations ===================== */
 
     private List<Game> similarGames;
