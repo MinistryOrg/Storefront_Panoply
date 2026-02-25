@@ -140,24 +140,37 @@ public class GameService {
 
         // Trending
         if (Boolean.TRUE.equals(filter.getTrending())) {
+            // Only released games
+            Criteria releaseCriteria = Criteria.where("firstReleaseDate").lte(LocalDateTime.now());
 
-            Criteria trendingCriteria = new Criteria().orOperator(
+            // Must have at least some ratings
+            Criteria ratingCriteria = new Criteria().orOperator(
+                    Criteria.where("aggregatedRatingCount").gt(0),
+                    Criteria.where("totalRatingCount").gt(0)
+            );
 
-                    // Upcoming hype
-                    Criteria.where("hypes").gte(30),
+            Criteria trendingSignal = new Criteria().orOperator(
+                    Criteria.where("hypes").gte(40),
+                    Criteria.where("firstReleaseDate").gte(LocalDateTime.now().minusMonths(6))
+            );
 
-                    // Recent release
-                    Criteria.where("firstReleaseDate")
-                            .gte(LocalDateTime.now().minusMonths(3))
+            // Combine all
+            Criteria trendingCriteria = new Criteria().andOperator(
+                    releaseCriteria,
+                    ratingCriteria,
+                    trendingSignal
             );
 
             query.addCriteria(trendingCriteria);
 
+            // Sort by hype > rating activity > rating value > recency
             query.with(Sort.by(
                     Sort.Order.desc("hypes"),
                     Sort.Order.desc("aggregatedRatingCount"),
+                    Sort.Order.desc("aggregatedRating"),
                     Sort.Order.desc("firstReleaseDate")
             ));
+
         }
 
 
