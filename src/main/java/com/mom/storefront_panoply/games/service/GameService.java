@@ -136,15 +136,16 @@ public class GameService {
         if (Boolean.TRUE.equals(filter.getTrending())) {
 
             LocalDateTime now = LocalDateTime.now();
-            LocalDateTime sixMonthsAgo = now.minusMonths(6);
+            LocalDateTime monthsAgo = now.minusMonths(12);
 
             criteriaList.add(
                     new Criteria().andOperator(
                             Criteria.where("firstReleaseDate").lte(now),
-                            Criteria.where("firstReleaseDate").gte(sixMonthsAgo)
+                            Criteria.where("firstReleaseDate").gte(monthsAgo)//
                     )
             );
 
+            // to be trending must be popular and recent released
             filter.setPopular(true);
         }
 
