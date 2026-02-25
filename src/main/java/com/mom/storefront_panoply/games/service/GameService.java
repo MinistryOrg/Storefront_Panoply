@@ -163,16 +163,7 @@ public class GameService {
 
             query.addCriteria(trendingCriteria);
 
-            // Sort by hype > rating activity > rating value > recency
-            query.with(Sort.by(
-                    Sort.Order.desc("hypes"),
-                    Sort.Order.desc("aggregatedRatingCount"),
-                    Sort.Order.desc("aggregatedRating"),
-                    Sort.Order.desc("firstReleaseDate")
-            ));
-
         }
-
 
         // Hidden Gems
         if (Boolean.TRUE.equals(filter.getHiddenGems())) {
