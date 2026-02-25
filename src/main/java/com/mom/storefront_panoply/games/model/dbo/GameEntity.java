@@ -49,7 +49,7 @@ public class GameEntity {
 
     private Double popularity;
 
-    /* ===================== Relations ===================== */
+    // Relations
 
     private List<Game> similarGames;
 
@@ -72,7 +72,7 @@ public class GameEntity {
 
     private List<LanguageSupport> languageSupports;
 
-    /* ===================== Versions ===================== */
+    // Versions
 
     private List<Game> ports;
     private List<Game> remakes;
@@ -84,7 +84,7 @@ public class GameEntity {
 
     private Game parentGame;
 
-    /* ===================== DLC ===================== */
+    // DLC
 
     private List<Game> dlcs;
     private List<Game> expansions;
@@ -93,7 +93,7 @@ public class GameEntity {
 
     private List<Game> bundles;
 
-    /* ===================== Franchise / Collection ===================== */
+    // Franchise / Collection
 
     private Franchise franchise;
 
@@ -103,13 +103,13 @@ public class GameEntity {
 
     private Integer gameType;
 
-    /* ===================== Media ===================== */
+    // Media
 
     private List<Screenshot> screenshots;
     private List<Video> videos;
     private List<Artwork> artworks;
 
-    /* ===================== Metadata ===================== */
+    // Metadata
 
     private List<AlternativeName> alternativeNames;
 

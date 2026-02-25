@@ -1,5 +1,6 @@
 package com.mom.storefront_panoply.games.filters;
 
+import com.mom.storefront_panoply.igdb.model.Platform;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ public class GameFilter {
     private String gameId;
     private String gameName;
     private String companyName;
+    private Platform platform;
     private Set<String> gameIds;
     private Boolean popular;
     private Boolean trending;
