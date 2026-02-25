@@ -132,253 +132,242 @@ public class GameService {
             );
         }
 
-
-        // Popular
-        if (filter.getPopular() != null) {
-            criteriaList.add(Criteria.where("isPopular").is(filter.getPopular()));
-        }
-
         // Trending
         if (Boolean.TRUE.equals(filter.getTrending())) {
-            // Only released games
-            Criteria releaseCriteria = Criteria.where("firstReleaseDate").lte(LocalDateTime.now());
 
-            // Must have at least some ratings
-            Criteria ratingCriteria = new Criteria().andOperator(
-                    Criteria.where("totalRatingCount").gt(0)
-            );
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime sixMonthsAgo = now.minusMonths(6);
 
-            Criteria trendingSignal = new Criteria().andOperator(
-                    Criteria.where("hypes").gte(40),
-                    Criteria.where("firstReleaseDate").gte(LocalDateTime.now().minusMonths(6))
-            );
-
-            // Combine all
-            Criteria trendingCriteria = new Criteria().andOperator(
-                    releaseCriteria,
-                    ratingCriteria,
-                    trendingSignal
-            );
-
-            query.addCriteria(trendingCriteria);
-
-        }
-
-        // Hidden Gems
-        if (Boolean.TRUE.equals(filter.getHiddenGems())) {
             criteriaList.add(
                     new Criteria().andOperator(
-                            Criteria.where("rating").gte(8),
-                            Criteria.where("totalRatingCount").lt(500)
+                            Criteria.where("firstReleaseDate").lte(now),
+                            Criteria.where("firstReleaseDate").gte(sixMonthsAgo)
                     )
             );
+
+            filter.setPopular(true);
         }
 
-        // Recently added
-        if (filter.getCreatedAt() != null) {
-            criteriaList.add(Criteria.where("createdAt").gte(filter.getCreatedAt()));
+            // Popular
+            if (filter.getPopular() != null) {
+                criteriaList.add(Criteria.where("isPopular").is(filter.getPopular()));
+            }
+
+            // Hidden Gems
+            if (Boolean.TRUE.equals(filter.getHiddenGems())) {
+                criteriaList.add(
+                        new Criteria().andOperator(
+                                Criteria.where("rating").gte(8),
+                                Criteria.where("totalRatingCount").lt(500)
+                        )
+                );
+            }
+
+            // Recently added
+            if (filter.getCreatedAt() != null) {
+                criteriaList.add(Criteria.where("createdAt").gte(filter.getCreatedAt()));
+            }
+
+            // Upcoming
+            if (filter.getFirstReleasedDate() != null) {
+                criteriaList.add(Criteria.where("firstReleaseDate").gte(filter.getFirstReleasedDate()));
+            }
+
+            if (!criteriaList.isEmpty()) {
+                query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+            }
+
+            return query;
         }
 
-        // Upcoming
-        if (filter.getFirstReleasedDate() != null) {
-            criteriaList.add(Criteria.where("firstReleaseDate").gte(filter.getFirstReleasedDate()));
+        private Query buildSearchGameQuery (GameFilter filter){
+            Query query = new Query();
+            List<Criteria> criteriaList = new ArrayList<>();
+
+            // by game name starts with
+            if (!Util.nullOrEmpty(filter.getGameName())) {
+                criteriaList.add(startsWithIgnoreCase("name", filter.getGameName()));
+            }
+
+            // by company name that starts with
+            if (!Util.nullOrEmpty(filter.getCompanyName())) {
+                criteriaList.add(startsWithIgnoreCase("involvedCompanies.company.name", filter.getCompanyName()));
+            }
+
+            if (!criteriaList.isEmpty()) {
+                query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+            }
+
+            return query;
         }
 
-        if (!criteriaList.isEmpty()) {
-            query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+
+        private Criteria startsWithIgnoreCase (String field, String value){
+            return Criteria.where(field)
+                    .regex("^" + Pattern.quote(value), "i");
         }
 
-        return query;
-    }
-
-    private Query buildSearchGameQuery(GameFilter filter) {
-        Query query = new Query();
-        List<Criteria> criteriaList = new ArrayList<>();
-
-        // by game name starts with
-        if (!Util.nullOrEmpty(filter.getGameName())) {
-            criteriaList.add(startsWithIgnoreCase("name", filter.getGameName()));
+        public GameSearchFilters getGameSearchFilters () {
+            List<GenreEntity> genreEntities = mongoTemplate.findAll(GenreEntity.class);
+            List<GameModeEntity> modeEntities = mongoTemplate.findAll(GameModeEntity.class);
+            List<PlatformEntity> platformEntities = mongoTemplate.findAll(PlatformEntity.class);
+            List<GameTypeEntity> types = mongoTemplate.findAll(GameTypeEntity.class);
+            return new GameSearchFilters(genreEntities, modeEntities, platformEntities, types);
         }
 
-        // by company name that starts with
-        if (!Util.nullOrEmpty(filter.getCompanyName())) {
-            criteriaList.add(startsWithIgnoreCase("involvedCompanies.company.name", filter.getCompanyName()));
-        }
+        public CollectionsResponse getCollection (Integer size, Integer page){
 
-        if (!criteriaList.isEmpty()) {
-            query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
-        }
+            Pageable pageable = PageRequest.of(page, size);
 
-        return query;
-    }
+            Query query = new Query();
 
+            // Count before pagination
+            long total = mongoTemplate.count(query, CollectionEntity.class);
 
-    private Criteria startsWithIgnoreCase(String field, String value) {
-        return Criteria.where(field)
-                .regex("^" + Pattern.quote(value), "i");
-    }
+            // Apply pagination
+            query.with(pageable);
 
-    public GameSearchFilters getGameSearchFilters() {
-        List<GenreEntity> genreEntities = mongoTemplate.findAll(GenreEntity.class);
-        List<GameModeEntity> modeEntities = mongoTemplate.findAll(GameModeEntity.class);
-        List<PlatformEntity> platformEntities = mongoTemplate.findAll(PlatformEntity.class);
-        List<GameTypeEntity> types = mongoTemplate.findAll(GameTypeEntity.class);
-        return new GameSearchFilters(genreEntities, modeEntities, platformEntities, types);
-    }
+            // Fetch data
+            List<CollectionEntity> entities =
+                    mongoTemplate.find(query, CollectionEntity.class);
 
-    public CollectionsResponse getCollection(Integer size, Integer page) {
-
-        Pageable pageable = PageRequest.of(page, size);
-
-        Query query = new Query();
-
-        // Count before pagination
-        long total = mongoTemplate.count(query, CollectionEntity.class);
-
-        // Apply pagination
-        query.with(pageable);
-
-        // Fetch data
-        List<CollectionEntity> entities =
-                mongoTemplate.find(query, CollectionEntity.class);
-
-        // Collect all game IDs
-        Set<String> allGameIds = new HashSet<>();
-        for (CollectionEntity collectionEntity : entities) {
-            List<GameEntity> games = collectionEntity.getGames();
-            if (!Util.nullOrEmpty(games)) {
-                for (GameEntity game : games) {
-                    if (game.getId() != null) {
-                        allGameIds.add(game.getId());
+            // Collect all game IDs
+            Set<String> allGameIds = new HashSet<>();
+            for (CollectionEntity collectionEntity : entities) {
+                List<GameEntity> games = collectionEntity.getGames();
+                if (!Util.nullOrEmpty(games)) {
+                    for (GameEntity game : games) {
+                        if (game.getId() != null) {
+                            allGameIds.add(game.getId());
+                        }
                     }
                 }
             }
-        }
 
-        // Fetch all games in one query
-        List<GameEntity> allGames = getGames(GameFilter.builder().gameIds(allGameIds).build(), true);
+            // Fetch all games in one query
+            List<GameEntity> allGames = getGames(GameFilter.builder().gameIds(allGameIds).build(), true);
 
-        // Map game ID to game entity using a HashMap
-        Map<String, GameEntity> gameMap = new HashMap<>();
-        for (GameEntity game : allGames) {
-            if (game.getId() != null) {
-                gameMap.put(game.getId(), game);
+            // Map game ID to game entity using a HashMap
+            Map<String, GameEntity> gameMap = new HashMap<>();
+            for (GameEntity game : allGames) {
+                if (game.getId() != null) {
+                    gameMap.put(game.getId(), game);
+                }
             }
+
+            // Build franchise DTOs
+            List<CollectionDto> collectionDtos = new ArrayList<>(entities.size());
+            for (CollectionEntity collectionEntity : entities) {
+                List<GameEntity> collectionGames = new ArrayList<>();
+                List<GameEntity> games = collectionEntity.getGames();
+                if (!Util.nullOrEmpty(games)) {
+                    for (GameEntity g : games) {
+                        GameEntity mapped = gameMap.get(g.getId());
+                        if (mapped != null) {
+                            collectionGames.add(mapped);
+                        }
+                    }
+                }
+                collectionDtos.add(gameMapper.toCollection(collectionEntity, collectionGames));
+            }
+
+            // Wrap in Page
+            Page<CollectionDto> pageResult = new PageImpl<>(collectionDtos, pageable, total);
+
+
+            return CollectionsResponse.builder()
+                    .collections(PagedResponse.from(pageResult))
+                    .build();
         }
 
-        // Build franchise DTOs
-        List<CollectionDto> collectionDtos = new ArrayList<>(entities.size());
-        for (CollectionEntity collectionEntity : entities) {
-            List<GameEntity> collectionGames = new ArrayList<>();
-            List<GameEntity> games = collectionEntity.getGames();
-            if (!Util.nullOrEmpty(games)) {
-                for (GameEntity g : games) {
-                    GameEntity mapped = gameMap.get(g.getId());
-                    if (mapped != null) {
-                        collectionGames.add(mapped);
+        public GameSearchResult searchGame (SearchFilter searchFilter, Integer page, Integer size){
+            Pageable pageable = PageRequest.of(page, size);
+            PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
+                    gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
+
+            PagedResponse<GameDto> byCompany = PagedResponse.from(filterGames(GameFilter.builder().
+                    gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
+
+            return GameSearchResult.builder().gamesByCompany(byCompany).gamesByName(byName).build();
+        }
+
+        public FranchisesResponse getFranchise (Integer size, Integer page){
+
+            Pageable pageable = PageRequest.of(page, size);
+            Query query = new Query();
+
+            // Count total franchises
+            long total = mongoTemplate.count(query, FranchiseEntity.class);
+
+            // Fetch paginated franchises
+            query.with(pageable);
+            List<FranchiseEntity> franchises = mongoTemplate.find(query, FranchiseEntity.class);
+
+            // Collect all game IDs
+            Set<String> allGameIds = new HashSet<>();
+            for (FranchiseEntity franchise : franchises) {
+                List<GameEntity> games = franchise.getGames();
+                if (!Util.nullOrEmpty(games)) {
+                    for (GameEntity game : games) {
+                        if (game.getId() != null) {
+                            allGameIds.add(game.getId());
+                        }
                     }
                 }
             }
-            collectionDtos.add(gameMapper.toCollection(collectionEntity, collectionGames));
-        }
 
-        // Wrap in Page
-        Page<CollectionDto> pageResult = new PageImpl<>(collectionDtos, pageable, total);
+            // Fetch all games in one query
+            List<GameEntity> allGames = getGames(GameFilter.builder().gameIds(allGameIds).build(), true);
 
-
-        return CollectionsResponse.builder()
-                .collections(PagedResponse.from(pageResult))
-                .build();
-    }
-
-    public GameSearchResult searchGame(SearchFilter searchFilter, Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page, size);
-        PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
-                gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
-
-        PagedResponse<GameDto> byCompany = PagedResponse.from(filterGames(GameFilter.builder().
-                gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
-
-        return GameSearchResult.builder().gamesByCompany(byCompany).gamesByName(byName).build();
-    }
-
-    public FranchisesResponse getFranchise(Integer size, Integer page) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Query query = new Query();
-
-        // Count total franchises
-        long total = mongoTemplate.count(query, FranchiseEntity.class);
-
-        // Fetch paginated franchises
-        query.with(pageable);
-        List<FranchiseEntity> franchises = mongoTemplate.find(query, FranchiseEntity.class);
-
-        // Collect all game IDs
-        Set<String> allGameIds = new HashSet<>();
-        for (FranchiseEntity franchise : franchises) {
-            List<GameEntity> games = franchise.getGames();
-            if (!Util.nullOrEmpty(games)) {
-                for (GameEntity game : games) {
-                    if (game.getId() != null) {
-                        allGameIds.add(game.getId());
-                    }
+            // Map game ID to game entity using a HashMap
+            Map<String, GameEntity> gameMap = new HashMap<>();
+            for (GameEntity game : allGames) {
+                if (game.getId() != null) {
+                    gameMap.put(game.getId(), game);
                 }
             }
-        }
 
-        // Fetch all games in one query
-        List<GameEntity> allGames = getGames(GameFilter.builder().gameIds(allGameIds).build(), true);
-
-        // Map game ID to game entity using a HashMap
-        Map<String, GameEntity> gameMap = new HashMap<>();
-        for (GameEntity game : allGames) {
-            if (game.getId() != null) {
-                gameMap.put(game.getId(), game);
-            }
-        }
-
-        // Build franchise DTOs
-        List<FranchiseDto> franchiseDtos = new ArrayList<>(franchises.size());
-        for (FranchiseEntity franchise : franchises) {
-            List<GameEntity> franchiseGames = new ArrayList<>();
-            List<GameEntity> games = franchise.getGames();
-            if (!Util.nullOrEmpty(games)) {
-                for (GameEntity g : games) {
-                    GameEntity mapped = gameMap.get(g.getId());
-                    if (mapped != null) {
-                        franchiseGames.add(mapped);
+            // Build franchise DTOs
+            List<FranchiseDto> franchiseDtos = new ArrayList<>(franchises.size());
+            for (FranchiseEntity franchise : franchises) {
+                List<GameEntity> franchiseGames = new ArrayList<>();
+                List<GameEntity> games = franchise.getGames();
+                if (!Util.nullOrEmpty(games)) {
+                    for (GameEntity g : games) {
+                        GameEntity mapped = gameMap.get(g.getId());
+                        if (mapped != null) {
+                            franchiseGames.add(mapped);
+                        }
                     }
                 }
+                franchiseDtos.add(gameMapper.toFranchise(franchise, franchiseGames));
             }
-            franchiseDtos.add(gameMapper.toFranchise(franchise, franchiseGames));
+
+            // Wrap in Page
+            Page<FranchiseDto> pageResult = new PageImpl<>(franchiseDtos, pageable, total);
+
+            return FranchisesResponse.builder()
+                    .franchises(PagedResponse.from(pageResult))
+                    .build();
         }
 
-        // Wrap in Page
-        Page<FranchiseDto> pageResult = new PageImpl<>(franchiseDtos, pageable, total);
 
-        return FranchisesResponse.builder()
-                .franchises(PagedResponse.from(pageResult))
-                .build();
-    }
-
-
-    public Set<String> getGameIds(List<GameEntity> games) {
-        if (Util.nullOrEmpty(games)) {
-            return new HashSet<>();
-        }
-
-        Set<String> set = new HashSet<>(games.size());
-
-        for (GameEntity game : games) {
-            String id = game.getId();
-            if (id != null) {
-                set.add(id);
+        public Set<String> getGameIds (List < GameEntity > games) {
+            if (Util.nullOrEmpty(games)) {
+                return new HashSet<>();
             }
+
+            Set<String> set = new HashSet<>(games.size());
+
+            for (GameEntity game : games) {
+                String id = game.getId();
+                if (id != null) {
+                    set.add(id);
+                }
+            }
+
+            return set;
         }
 
-        return set;
+
     }
-
-
-}
