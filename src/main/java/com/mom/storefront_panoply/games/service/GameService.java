@@ -140,29 +140,27 @@ public class GameService {
 
         // Trending
         if (Boolean.TRUE.equals(filter.getTrending())) {
-            // Only released games
-            Criteria releaseCriteria = Criteria.where("firstReleaseDate").lte(LocalDateTime.now());
 
-            // Must have at least some ratings
-            Criteria ratingCriteria = new Criteria().orOperator(
-                    Criteria.where("aggregatedRatingCount").gt(0),
-                    Criteria.where("totalRatingCount").gt(0)
-            );
+            LocalDateTime now = LocalDateTime.now();
 
-            Criteria trendingSignal = new Criteria().orOperator(
-                    Criteria.where("hypes").gte(40),
-                    Criteria.where("firstReleaseDate").gte(LocalDateTime.now().minusMonths(6))
-            );
-
-            // Combine all
             Criteria trendingCriteria = new Criteria().andOperator(
-                    releaseCriteria,
-                    ratingCriteria,
-                    trendingSignal
+                    // Only released
+                    Criteria.where("firstReleaseDate").lte(now),
+
+                    // Must have ratings
+                    Criteria.where("aggregatedRatingCount").gt(10),
+
+                    // Released within last 6 months
+                    Criteria.where("firstReleaseDate").gte(now.minusMonths(6))
             );
 
             query.addCriteria(trendingCriteria);
 
+            query.with(Sort.by(
+                    Sort.Order.desc("hypes"),
+                    Sort.Order.desc("aggregatedRatingCount"),
+                    Sort.Order.desc("firstReleaseDate")
+            ));
         }
 
         // Hidden Gems
