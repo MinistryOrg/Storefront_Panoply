@@ -70,6 +70,12 @@ public class GameService {
             query = buildGameQuery(filter, true);
         }
 
+        // sort
+        if (!Util.nullOrEmpty(filter.getSortBy())) {
+            Sort sort = filter.getSortBy().toSpringSort();
+            query.with(sort);
+        }
+
         // Pagination
         query.with(pageable);
 

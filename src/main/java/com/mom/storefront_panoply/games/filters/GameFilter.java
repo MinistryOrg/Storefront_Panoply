@@ -1,5 +1,6 @@
 package com.mom.storefront_panoply.games.filters;
 
+import com.mom.storefront_panoply.games.model.dto.GameSort;
 import com.mom.storefront_panoply.igdb.model.Platform;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,5 @@ public class GameFilter {
     private Boolean hiddenGems;
     private LocalDateTime createdAt; // recently added
     private LocalDateTime firstReleasedDate; // upcoming
-    // todo sort based on hype, rating and name ??
-
+    private GameSort sortBy;
 }
