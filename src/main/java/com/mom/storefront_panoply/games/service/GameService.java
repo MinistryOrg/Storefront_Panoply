@@ -187,7 +187,7 @@ public class GameService {
 
         // Platform
         if (!Util.nullOrEmpty(filter.getPlatform())){
-            criteriaList.add(Criteria.where("platform").is(filter.getPlatform().getName()));
+            criteriaList.add(Criteria.where("platform").is(filter.getPlatform()));
         }
 
         if (!criteriaList.isEmpty()) {
