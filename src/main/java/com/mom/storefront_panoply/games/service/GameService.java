@@ -161,7 +161,7 @@ public class GameService {
         }
 
         // Popular
-        if (filter.getPopular() != null) {
+        if (Boolean.TRUE.equals(filter.getPopular())) {
             criteriaList.add(Criteria.where("isPopular").is(filter.getPopular()));
         }
 
@@ -176,18 +176,18 @@ public class GameService {
         }
 
         // Recently added
-        if (filter.getCreatedAt() != null) {
+        if (!Util.nullOrEmpty(filter.getCreatedAt())) {
             criteriaList.add(Criteria.where("createdAt").gte(filter.getCreatedAt()));
         }
 
         // Upcoming
-        if (filter.getFirstReleasedDate() != null) {
+        if (!Util.nullOrEmpty(filter.getFirstReleasedDate())) {
             criteriaList.add(Criteria.where("firstReleaseDate").gte(filter.getFirstReleasedDate()));
         }
 
         // Platform
         if (!Util.nullOrEmpty(filter.getPlatform())){
-            criteriaList.add(Criteria.where("platform").is(filter.getPlatform()));
+            criteriaList.add(Criteria.where("platform").is(filter.getPlatform().getName()));
         }
 
         if (!criteriaList.isEmpty()) {
