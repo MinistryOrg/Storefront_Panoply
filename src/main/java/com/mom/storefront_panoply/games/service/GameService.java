@@ -192,8 +192,11 @@ public class GameService {
         }
 
         // Platform
-        if (!Util.nullOrEmpty(filter.getPlatform())){
-            criteriaList.add(Criteria.where("platform").is(filter.getPlatform()));
+        if (!Util.nullOrEmpty(filter.getPlatform())) {
+            criteriaList.add(
+                    Criteria.where("platforms.name")
+                            .regex("^" + filter.getPlatform() + "$", "i")
+            );
         }
 
         if (!criteriaList.isEmpty()) {
