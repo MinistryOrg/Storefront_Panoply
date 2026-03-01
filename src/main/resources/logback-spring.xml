@@ -7,7 +7,7 @@
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rotation every day -->
-            <fileNamePattern>/var/log/myapp/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/var/log/myapp/app.log</fileNamePattern>
             <maxHistory>14</maxHistory>
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
