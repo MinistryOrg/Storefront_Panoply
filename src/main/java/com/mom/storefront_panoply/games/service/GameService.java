@@ -234,6 +234,7 @@ public class GameService {
     }
 
     public GameSearchFilters getGameSearchFilters() {
+        log.info("Get the game search filters...");
         List<GenreEntity> genreEntities = mongoTemplate.findAll(GenreEntity.class);
         List<GameModeEntity> modeEntities = mongoTemplate.findAll(GameModeEntity.class);
         List<PlatformEntity> platformEntities = mongoTemplate.findAll(PlatformEntity.class);
