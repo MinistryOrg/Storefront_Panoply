@@ -2,6 +2,7 @@ package com.mom.storefront_panoply.games.model.dbo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mom.storefront_panoply.games.model.dto.GameDto;
+import com.mom.storefront_panoply.igdb.model.Artwork;
 import com.mom.storefront_panoply.igdb.model.Game;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,6 +24,6 @@ public class FranchiseEntity {
     private Long id;
     private String name;
     private String url;
-
+    private Artwork artwork;
     private List<GameEntity> games;
 }

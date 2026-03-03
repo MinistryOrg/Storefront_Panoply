@@ -35,7 +35,6 @@ public class GameService {
     }
 
     public List<GameEntity> getGames(GameFilter gamesFilter, Boolean lightWeight) {
-        log.info("Get game with filter {}", gamesFilter);
         return filterGames(gamesFilter, lightWeight);
     }
 

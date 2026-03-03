@@ -117,6 +117,8 @@ public class SyncGamesService {
             igdbService.getAllFranchises(franchises -> {
                 for (Franchise franchise : franchises) {
                     FranchiseEntity entity = gameMapper.toFranchise(franchise);
+                    // todo set the artwork to franchise
+                    //entity.setArtwork();
                     franchiseBuffer.add(entity);
 
                     if (franchiseBuffer.size() >= batchSize) {

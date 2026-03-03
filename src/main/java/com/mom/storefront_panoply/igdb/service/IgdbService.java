@@ -19,9 +19,9 @@ public class IgdbService {
 
     /*
         todo :
-            -get collection
-            -get franchise
             -fix the query to get only the latest updated or created to not update all the games every time
+            -times to beat
+            -set to franchise the cover
      */
 
     public Set<Long> getPopularGamesIds() {

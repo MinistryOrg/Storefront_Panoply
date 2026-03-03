@@ -151,6 +151,7 @@ public class GameMapper {
                 .isPopular(isPopular)
                 .alternativeNames(game.getAlternativeNames())
                 .franchise(game.getFranchise())
+                .franchises(toFranchises(game.getFranchises()))
                 .similarGames(game.getSimilarGames())
                 .dlcs(game.getDlcs())
                 .collections(game.getCollections())
@@ -367,6 +368,13 @@ public class GameMapper {
                 .build();
     }
 
+    public List<FranchiseEntity> toFranchises(List<Franchise> franchises) {
+        List<FranchiseEntity> franchiseDbo = new ArrayList<>(franchises.size());
+        for (Franchise franchise : franchises) {
+            franchiseDbo.add(this.toFranchise(franchise));
+        }
+        return franchiseDbo;
+    }
     public FranchiseDto toFranchise(FranchiseEntity franchise, List<GameEntity> game) {
         return FranchiseDto.builder()
                 .id(franchise.getId())
