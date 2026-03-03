@@ -195,8 +195,8 @@ public class GameService {
         // Platform
         if (!Util.nullOrEmpty(filter.getPlatform())) {
             criteriaList.add(
-                    Criteria.where("platforms.name")
-                            .regex("^" + Pattern.quote(filter.getPlatform().trim()) + "$", "i")
+                    Criteria.where("platforms")
+                            .elemMatch(Criteria.where("name").is(filter.getPlatform().trim()))
             );
         }
 
