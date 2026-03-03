@@ -20,6 +20,8 @@ services:
       SPRING_DATA_MONGODB_URI: mongodb://root:rootpass@mongo:27017/storedb?authSource=admin
     depends_on:
       - mongo
+    volumes:
+      - /var/log/myapp:/var/log/myapp
 
 volumes:
   mongo_data:
