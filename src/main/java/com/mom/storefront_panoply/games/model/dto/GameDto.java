@@ -1,5 +1,6 @@
 package com.mom.storefront_panoply.games.model.dto;
 
+import com.mom.storefront_panoply.igdb.model.Platform;
 import com.mom.storefront_panoply.igdb.model.Video;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,4 +23,5 @@ public class GameDto {
     private List<String> screenshotsImageId;
     private List<String> genreName;
     private List<Video> video;
+    private List<Platform> platforms;
 }

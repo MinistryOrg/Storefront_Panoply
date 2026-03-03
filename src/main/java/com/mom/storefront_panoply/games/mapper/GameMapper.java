@@ -45,6 +45,7 @@ public class GameMapper {
                 .screenshotsImageId(screenshots)
                 .genreName(genres != null ? genres : new ArrayList<>())
                 .video(entity.getVideos())
+                .platforms(entity.getPlatforms())
                 .build();
     }
 

@@ -102,6 +102,7 @@ public class GameService {
                     .include("cover.imageId")
                     .include("totalRating")
                     .include("rating")
+                    .include("platforms")
                     .include("screenshots.imageId")
                     .include("genres.name")
                     .include("videos");
@@ -195,7 +196,7 @@ public class GameService {
         if (!Util.nullOrEmpty(filter.getPlatform())) {
             criteriaList.add(
                     Criteria.where("platforms.name")
-                            .regex("^" + filter.getPlatform() + "$", "i")
+                            .regex("^" + Pattern.quote(filter.getPlatform().trim()) + "$", "i")
             );
         }
 
