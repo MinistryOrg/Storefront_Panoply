@@ -111,6 +111,7 @@ public class GameMapper {
                 .isPopular(game.getIsPopular())
                 .alternativeNames(game.getAlternativeNames())
                 .franchise(game.getFranchise())
+                .franchises(game.getFranchises())
                 .similarGames(game.getSimilarGames())
                 .dlcs(game.getDlcs())
                 .collections(game.getCollections())
