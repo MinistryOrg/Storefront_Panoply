@@ -30,14 +30,17 @@ public class GameService {
 
     public PagedResponse<GameDto> getGames(GameFilter gamesFilter, Integer size, Integer page) {
         Pageable pageable = PageRequest.of(page, size);
+        log.info("Get game with filter {}", gamesFilter);
         return PagedResponse.from(filterGames(gamesFilter, pageable, false), gameMapper::toGameDto);
     }
 
     public List<GameEntity> getGames(GameFilter gamesFilter, Boolean lightWeight) {
+        log.info("Get game with filter {}", gamesFilter);
         return filterGames(gamesFilter, lightWeight);
     }
 
     public GameDetailsDto getGame(String gameId) {
+        log.info("Get game with id {}", gameId);
         return gameMapper.toGameDetailsDto(getGameById(gameId));
     }
 
@@ -244,7 +247,7 @@ public class GameService {
     }
 
     public CollectionsResponse getCollection(Integer size, Integer page) {
-
+        log.info("Get the collection...");
         Pageable pageable = PageRequest.of(page, size);
 
         Query query = new Query();
@@ -309,6 +312,7 @@ public class GameService {
     }
 
     public GameSearchResult searchGame(SearchFilter searchFilter, Integer page, Integer size) {
+        log.info("Search game with filter: {}", searchFilter);
         Pageable pageable = PageRequest.of(page, size);
         PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
                 gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
@@ -320,7 +324,7 @@ public class GameService {
     }
 
     public FranchisesResponse getFranchise(Integer size, Integer page) {
-
+        log.info("Get the franchise...");
         Pageable pageable = PageRequest.of(page, size);
         Query query = new Query();
 

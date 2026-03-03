@@ -1,6 +1,5 @@
 package com.mom.storefront_panoply.sync;
 
-import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.mapper.GameMapper;
 import com.mom.storefront_panoply.games.model.dbo.*;
 import com.mom.storefront_panoply.games.service.GameService;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
@@ -42,6 +42,7 @@ public class SyncGamesService {
         SyncMetadata syncMetadata = getSyncMetadata(MetadataType.GAME);
 
         Set<Long> popularIds = igdbService.getPopularGamesIds();
+        log.info("Popular games ids {}", popularIds);
 
         final int batchSize = 100;
 
@@ -60,7 +61,6 @@ public class SyncGamesService {
 
                     // Save batch
                     if (buffer.size() >= batchSize) {
-
                         Util.bulkUpsert(buffer, GameEntity.class, mongoTemplate);
                         buffer.clear();
                     }
