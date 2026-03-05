@@ -19,6 +19,9 @@ import java.util.List;
 public class GameMapper {
 
     public GameDto toGameDto(GameEntity entity) {
+        if (Util.nullOrEmpty(entity)){
+            return null;
+        }
         List<String> screenshots = null;
         if (!Util.nullOrEmpty(entity.getScreenshots())) {
             screenshots = new ArrayList<>(entity.getScreenshots().size());
@@ -46,12 +49,15 @@ public class GameMapper {
                 .genreName(genres != null ? genres : new ArrayList<>())
                 .video(entity.getVideos())
                 .platforms(entity.getPlatforms())
-                .gameType(entity.getGameType())
+                .type(entity.getType())
                 .firstReleaseDate(entity.getFirstReleaseDate() != null ? entity.getFirstReleaseDate() : null)
                 .build();
     }
 
     public List<GameDto> toGameDto(List<GameEntity> entities) {
+        if (Util.nullOrEmpty(entities)) {
+            return new ArrayList<>();
+        }
         List<GameDto> gameDtos = new ArrayList<>(entities.size());
         for (GameEntity entity : entities) {
             List<String> screenshots = null;
@@ -86,6 +92,9 @@ public class GameMapper {
     }
 
     public GameDetailsDto toGameDetailsDto(GameEntity game) {
+        if (Util.nullOrEmpty(game)) {
+            return null;
+        }
         return GameDetailsDto.builder()
                 .id(game.getId())
                 .name(game.getName())
@@ -127,8 +136,13 @@ public class GameMapper {
     }
 
     public GameEntity toEntity(Game game, boolean isPopular) {
+        if (Util.nullOrEmpty(game)) {
+            return null;
+        }
         return GameEntity.builder()
                 .id(String.valueOf(game.getId()))
+                .websites(game.getWebsites())
+                .type(game.getType())
                 .name(game.getName())
                 .summary(game.getSummary())
                 .storyline(game.getStoryline())
@@ -194,6 +208,9 @@ public class GameMapper {
     }
 
     public List<PlatformEntity> toPlatformDbo(List<Platform> platforms) {
+        if (Util.nullOrEmpty(platforms)) {
+            return null;
+        }
 
         List<PlatformEntity> platformsDbo = new ArrayList<>(platforms.size());
 
@@ -215,13 +232,16 @@ public class GameMapper {
     }
 
     public List<GameTypeEntity> toGameTypeDbo(List<GameType> gameTypes) {
+        if (Util.nullOrEmpty(gameTypes)) {
+            return null;
+        }
 
         List<GameTypeEntity> gameTypesDbo = new ArrayList<>(gameTypes.size());
 
         for (GameType gameType : gameTypes) {
 
             GameTypeEntity gameTypeEntity = GameTypeEntity.builder()
-                    .id(gameType.getId())
+                    .id(String.valueOf(gameType.getId()))
                     .type(gameType.getType())
                     .build();
 
@@ -232,6 +252,9 @@ public class GameMapper {
     }
 
     public List<GameModeEntity> toGameModeDbo(List<GameMode> gameModes) {
+        if (Util.nullOrEmpty(gameModes)) {
+            return null;
+        }
 
         List<GameModeEntity> gameModesDbo = new ArrayList<>(gameModes.size());
 
@@ -250,6 +273,9 @@ public class GameMapper {
     }
 
     public CollectionDto toCollection(CollectionEntity collection, List<GameEntity> gameEntities) {
+        if (Util.nullOrEmpty(collection)) {
+            return null;
+        }
         return CollectionDto.builder()
                 .id(collection.getId())
                 .name(collection.getName())
@@ -259,6 +285,9 @@ public class GameMapper {
 
 
     public CollectionEntity toCollection(Collection collection) {
+        if(Util.nullOrEmpty(collection)) {
+            return null;
+        }
         return CollectionEntity.builder()
                 .id(collection.getId())
                 .name(collection.getName())
@@ -287,6 +316,9 @@ public class GameMapper {
     }
 
     public List<CollectionEntity> toCollection(List<Collection> collection) {
+        if (Util.nullOrEmpty(collection)) {
+            return null;
+        }
         List<CollectionEntity> collectionDbo = new ArrayList<>(collection.size());
         for (Collection c : collection) {
             collectionDbo.add(CollectionEntity.builder()
@@ -363,6 +395,9 @@ public class GameMapper {
 
 
     public FranchiseEntity toFranchise(Franchise franchise) {
+         if (Util.nullOrEmpty(franchise)){
+             return null;
+         }
         return FranchiseEntity.builder()
                 .id(franchise.getId())
                 .name(franchise.getName())
@@ -385,6 +420,9 @@ public class GameMapper {
     }
 
     public FranchiseDto toFranchise(FranchiseEntity franchise, List<GameEntity> game) {
+        if (Util.nullOrEmpty(franchise)) {
+            return null;
+        }
         return FranchiseDto.builder()
                 .id(franchise.getId())
                 .name(franchise.getName())

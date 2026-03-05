@@ -97,7 +97,7 @@ public class GameDetailsDto {
 
     private List<Collection> collections;
 
-    private Integer gameType;
+    private Long type;
 
     /* ===================== Media ===================== */
 

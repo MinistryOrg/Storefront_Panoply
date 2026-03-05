@@ -113,7 +113,7 @@ public class Game {
     private List<Collection> collections;
 
     @JsonProperty("game_type")
-    private Integer gameType;
+    private Long type;
 
     /* ===================== Media ===================== */
 

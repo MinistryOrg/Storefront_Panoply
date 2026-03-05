@@ -185,7 +185,7 @@ public class SyncGamesService {
             updatedSyncMetadata.setId(metadata.getId());
         }
 
-        mongoTemplate.insert(updatedSyncMetadata);
+        //mongoTemplate.insert(updatedSyncMetadata);
     }
 
     public SyncMetadata getSyncMetadata(MetadataType type) {

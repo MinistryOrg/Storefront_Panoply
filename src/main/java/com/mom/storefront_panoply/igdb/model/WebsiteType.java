@@ -16,8 +16,8 @@ public class WebsiteType {
     private Long id;
     private String type;
     @JsonProperty("create_at")
-    private LocalDate createdAt;
+    private Integer createdAt;
     @JsonProperty("updated_at")
-    private LocalDate updatedAt;
+    private Integer updatedAt;
     private String checksum;
 }

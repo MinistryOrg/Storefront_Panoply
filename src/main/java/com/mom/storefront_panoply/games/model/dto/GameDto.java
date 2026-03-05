@@ -1,5 +1,6 @@
 package com.mom.storefront_panoply.games.model.dto;
 
+import com.mom.storefront_panoply.igdb.model.GameType;
 import com.mom.storefront_panoply.igdb.model.Platform;
 import com.mom.storefront_panoply.igdb.model.Video;
 import lombok.AllArgsConstructor;
@@ -25,6 +26,6 @@ public class GameDto {
     private List<String> genreName;
     private List<Video> video;
     private List<Platform> platforms;
-    private Integer gameType;
+    private Long type;
     private LocalDateTime firstReleaseDate;
 }
