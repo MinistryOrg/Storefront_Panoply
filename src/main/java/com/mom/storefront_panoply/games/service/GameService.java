@@ -107,6 +107,8 @@ public class GameService {
                     .include("platforms")
                     .include("screenshots.imageId")
                     .include("genres.name")
+                    .include("gameType")
+                    .include("firstReleaseDate")
                     .include("videos");
         }
 

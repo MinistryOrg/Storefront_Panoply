@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -24,4 +25,6 @@ public class GameDto {
     private List<String> genreName;
     private List<Video> video;
     private List<Platform> platforms;
+    private Integer gameType;
+    private LocalDateTime firstReleaseDate;
 }

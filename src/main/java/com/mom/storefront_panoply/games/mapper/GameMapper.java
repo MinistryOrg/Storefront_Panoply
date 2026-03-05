@@ -46,6 +46,8 @@ public class GameMapper {
                 .genreName(genres != null ? genres : new ArrayList<>())
                 .video(entity.getVideos())
                 .platforms(entity.getPlatforms())
+                .gameType(entity.getGameType())
+                .firstReleaseDate(entity.getFirstReleaseDate() != null ? entity.getFirstReleaseDate() : null)
                 .build();
     }
 
