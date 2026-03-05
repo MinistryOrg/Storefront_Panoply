@@ -42,6 +42,9 @@ public class Game {
     @JsonProperty("aggregated_rating_count")
     private Integer aggregatedRatingCount;
 
+    @JsonProperty("game_status")
+    private GameStatus gameStatus;
+
     private Double rating;
 
     private Integer hypes;

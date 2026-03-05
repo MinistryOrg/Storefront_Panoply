@@ -35,6 +35,8 @@ public class GameDetailsDto {
 
     private Integer status;
 
+    private GameStatus gameStatus;
+
     private Double aggregatedRating;
 
     private Integer aggregatedRatingCount;

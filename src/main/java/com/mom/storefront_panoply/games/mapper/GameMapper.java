@@ -51,6 +51,7 @@ public class GameMapper {
                 .platforms(entity.getPlatforms())
                 .type(entity.getType())
                 .firstReleaseDate(entity.getFirstReleaseDate() != null ? entity.getFirstReleaseDate() : null)
+                .gameStatus(entity.getGameStatus())
                 .build();
     }
 
@@ -86,6 +87,7 @@ public class GameMapper {
                     .screenshotsImageId(screenshots)
                     .genreName(genres != null ? genres : new ArrayList<>())
                     .video(entity.getVideos())
+                    .gameStatus(entity.getGameStatus())
                     .build());
         }
         return gameDtos;
@@ -132,6 +134,12 @@ public class GameMapper {
                 .languageSupports(game.getLanguageSupports())
                 .bundles(game.getBundles())
                 .remakes(game.getRemakes())
+                .type(game.getType())
+                .websites(game.getWebsites())
+                .ageRatings(game.getAgeRatings())
+                .playerPerspectives(game.getPlayerPerspectives())
+                .gameEngines(game.getGameEngines())
+                .gameStatus(game.getGameStatus())
                 .build();
     }
 
@@ -181,6 +189,10 @@ public class GameMapper {
                 .parentGame(game.getParentGame())
                 .versionParent(game.getVersionParent())
                 .versionTitle(game.getVersionTitle())
+                .ageRatings(game.getAgeRatings())
+                .playerPerspectives(game.getPlayerPerspectives())
+                .gameEngines(game.getGameEngines())
+                .gameStatus(game.getGameStatus())
                 .build();
     }
 

@@ -49,6 +49,8 @@ public class GameEntity {
 
     private Double popularity;
 
+    private GameStatus gameStatus;
+
     // Relations
 
     private List<Game> similarGames;

@@ -331,7 +331,7 @@ public class IgdbService {
 
         while (true) {
             String size = "limit " + limit + "; offset " + offset + ";";
-
+            // todo can i get the popularity?
             String body = """
                     fields checksum,created_at,games,name,slug,updated_at,url;
                 """ + size + ";";

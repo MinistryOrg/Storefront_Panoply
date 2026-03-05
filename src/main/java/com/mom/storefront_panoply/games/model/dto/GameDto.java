@@ -1,5 +1,6 @@
 package com.mom.storefront_panoply.games.model.dto;
 
+import com.mom.storefront_panoply.igdb.model.GameStatus;
 import com.mom.storefront_panoply.igdb.model.GameType;
 import com.mom.storefront_panoply.igdb.model.Platform;
 import com.mom.storefront_panoply.igdb.model.Video;
@@ -27,5 +28,7 @@ public class GameDto {
     private List<Video> video;
     private List<Platform> platforms;
     private Long type;
+    private GameStatus gameStatus;
     private LocalDateTime firstReleaseDate;
+
 }

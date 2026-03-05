@@ -15,6 +15,7 @@ public class ExternalGame {
     private Long id;
     private Integer category;
     private String url;
+    private Platform platform;
 
     public ExternalGame(Long id) {
         this.id = id;
