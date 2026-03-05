@@ -204,6 +204,18 @@ public class GameService {
             );
         }
 
+        // franchise root games
+        if (Boolean.TRUE.equals(filter.getFranchise())) {
+            criteriaList.add(
+                    new Criteria().andOperator(
+                            Criteria.where("franchise").ne(null),
+                            Criteria.where("parentGame").is(null),
+                            Criteria.where("versionParent").is(null),
+                            Criteria.where("versionTitle").is(null)
+                    )
+            );
+        }
+
         if (!criteriaList.isEmpty()) {
             query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
         }

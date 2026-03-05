@@ -178,6 +178,9 @@ public class GameMapper {
                 .languageSupports(game.getLanguageSupports())
                 .bundles(game.getBundles())
                 .remakes(game.getRemakes())
+                .parentGame(game.getParentGame())
+                .versionParent(game.getVersionParent())
+                .versionTitle(game.getVersionTitle())
                 .build();
     }
 
