@@ -1,6 +1,7 @@
 package com.mom.storefront_panoply.igdb.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,8 @@ import lombok.NoArgsConstructor;
 public class Website {
     private Long id;
     private String url;
+    private Long game;
+    private Boolean trusted;
     private WebsiteType type;
 
     public Website(Long id) {

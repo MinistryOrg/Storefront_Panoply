@@ -95,7 +95,7 @@ public class GameEntity {
 
     // Franchise / Collection
 
-    private Franchise franchise;
+    private FranchiseEntity franchise;
 
     private List<FranchiseEntity> franchises;
 

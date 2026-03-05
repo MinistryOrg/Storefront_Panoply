@@ -18,6 +18,7 @@ public class GameFilter {
     private String companyName;
     private String platform;
     private Set<String> gameIds;
+    private Boolean franchise;
     private Boolean popular;
     private Boolean trending;
     private Boolean hiddenGems;

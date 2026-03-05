@@ -20,7 +20,7 @@ public class GameMapper {
 
     public GameDto toGameDto(GameEntity entity) {
         List<String> screenshots = null;
-        if (entity.getScreenshots() != null && !entity.getScreenshots().isEmpty()) {
+        if (!Util.nullOrEmpty(entity.getScreenshots())) {
             screenshots = new ArrayList<>(entity.getScreenshots().size());
             for (Screenshot s : entity.getScreenshots()) {
                 screenshots.add(s.getImageId());
@@ -28,7 +28,7 @@ public class GameMapper {
         }
 
         List<String> genres = null;
-        if (entity.getGenres() != null && !entity.getGenres().isEmpty()) {
+        if (!Util.nullOrEmpty(entity.getGenres())) {
             genres = new ArrayList<>(entity.getGenres().size());
             for (GenreEntity g : entity.getGenres()) {
                 genres.add(g.getName());
@@ -82,7 +82,6 @@ public class GameMapper {
         }
         return gameDtos;
     }
-
 
     public GameDetailsDto toGameDetailsDto(GameEntity game) {
         return GameDetailsDto.builder()
@@ -151,7 +150,7 @@ public class GameMapper {
                 .keywords(game.getKeywords())
                 .isPopular(isPopular)
                 .alternativeNames(game.getAlternativeNames())
-                .franchise(game.getFranchise())
+                .franchise(toFranchise(game.getFranchise()))
                 .franchises(toFranchises(game.getFranchises()))
                 .similarGames(game.getSimilarGames())
                 .dlcs(game.getDlcs())
@@ -168,7 +167,7 @@ public class GameMapper {
 
 
     public List<GenreEntity> toGenreDbo(List<Genre> genres) {
-        if(Util.nullOrEmpty(genres)) {
+        if (Util.nullOrEmpty(genres)) {
             return null;
         }
         List<GenreEntity> genresDbo = new ArrayList<>(genres.size());
@@ -184,7 +183,7 @@ public class GameMapper {
     }
 
     public LocalDateTime toDate(Long timestamp) {
-        if(Util.nullOrEmpty(timestamp)){
+        if (Util.nullOrEmpty(timestamp)) {
             return null;
         }
         return Instant.ofEpochSecond(timestamp)
@@ -257,7 +256,6 @@ public class GameMapper {
     }
 
 
-
     public CollectionEntity toCollection(Collection collection) {
         return CollectionEntity.builder()
                 .id(collection.getId())
@@ -270,16 +268,17 @@ public class GameMapper {
 
 
     public List<CollectionRelationEntity> toCollectionRelationDbo(List<CollectionRelation> collectionRelations) {
-        if(Util.nullOrEmpty(collectionRelations)) {
+        if (Util.nullOrEmpty(collectionRelations)) {
             return null;
         }
+
         List<CollectionRelationEntity> collectionRelationsDbo = new ArrayList<>(collectionRelations.size());
         for (CollectionRelation collectionRelation : collectionRelations) {
             collectionRelationsDbo.add(CollectionRelationEntity
                     .builder()
-                            .id(collectionRelation.getId())
-                            .childCollection(toCollectionEntity(collectionRelation.getChildCollection()))
-                            .parentCollection(toCollectionEntity(collectionRelation.getChildCollection()))
+                    .id(collectionRelation.getId())
+                    .childCollection(toCollectionEntity(collectionRelation.getChildCollection()))
+                    .parentCollection(toCollectionEntity(collectionRelation.getChildCollection()))
                     .build());
         }
         return collectionRelationsDbo;
@@ -300,7 +299,7 @@ public class GameMapper {
     }
 
     public CollectionEntity toCollectionEntity(Collection collection) {
-        if(Util.nullOrEmpty(collection)) {
+        if (Util.nullOrEmpty(collection)) {
             return null;
         }
         return CollectionEntity.builder()
@@ -314,9 +313,10 @@ public class GameMapper {
 
 
     public List<GameEntity> toGames(List<Game> games) {
-        if(Util.nullOrEmpty(games)) {
+        if (Util.nullOrEmpty(games)) {
             return null;
         }
+
         List<GameEntity> gameDbo = new ArrayList<>(games.size());
         for (Game game : games) {
             gameDbo.add(GameEntity.builder()
@@ -343,7 +343,7 @@ public class GameMapper {
                     .updatedAt(toDate(game.getUpdatedAt()))
                     .keywords(game.getKeywords())
                     .alternativeNames(game.getAlternativeNames())
-                    .franchise(game.getFranchise())
+                    .franchise(toFranchise(game.getFranchise()))
                     .similarGames(game.getSimilarGames())
                     .dlcs(game.getDlcs())
                     .collections(game.getCollections())
@@ -370,12 +370,18 @@ public class GameMapper {
     }
 
     public List<FranchiseEntity> toFranchises(List<Franchise> franchises) {
+        if (Util.nullOrEmpty(franchises)) {
+            return null;
+        }
+
         List<FranchiseEntity> franchiseDbo = new ArrayList<>(franchises.size());
         for (Franchise franchise : franchises) {
             franchiseDbo.add(this.toFranchise(franchise));
         }
+
         return franchiseDbo;
     }
+
     public FranchiseDto toFranchise(FranchiseEntity franchise, List<GameEntity> game) {
         return FranchiseDto.builder()
                 .id(franchise.getId())
@@ -384,7 +390,6 @@ public class GameMapper {
                 .games(toGameDto(game))
                 .build();
     }
-
 
 
 }
