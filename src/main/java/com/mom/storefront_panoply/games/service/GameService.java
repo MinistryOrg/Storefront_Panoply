@@ -316,8 +316,7 @@ public class GameService {
         PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
                 gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
 
-        PagedResponse<GameDto> byCompany = PagedResponse.from(filterGames(GameFilter.builder().
-                gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
+        PagedResponse<GameDto> byCompany = PagedResponse.from(filterGames(GameFilter.builder().companyName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
 
         return GameSearchResult.builder().gamesByCompany(byCompany).gamesByName(byName).build();
     }
