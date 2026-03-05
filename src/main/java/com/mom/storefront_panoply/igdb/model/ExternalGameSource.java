@@ -1,27 +1,21 @@
 package com.mom.storefront_panoply.igdb.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ExternalGame {
+public class ExternalGameSource {
     private Long id;
-    private Integer category;
-    private String url;
-    private Platform platform;
-    @JsonProperty("external_game_source")
-    private ExternalGameSource externalGameSource;
+    private String name;
 
-    public ExternalGame(Long id) {
+    public ExternalGameSource(Long id) {
         this.id = id;
     }
 }
-
