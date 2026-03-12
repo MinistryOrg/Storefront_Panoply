@@ -297,6 +297,7 @@ public class IgdbService {
                           games.hypes,
                           games.rating,
                           games.total_rating,
+                          games.game_engines.name,
                           games.total_rating_count,
                     
                           games.cover.image_id,
@@ -382,6 +383,7 @@ public class IgdbService {
                           games.rating,
                           games.total_rating,
                           games.total_rating_count,
+                          games.game_engines.name,
                     
                           games.cover.image_id,
                           games.screenshots.image_id,

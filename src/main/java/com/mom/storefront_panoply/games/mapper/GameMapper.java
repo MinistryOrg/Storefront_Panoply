@@ -403,6 +403,8 @@ public class GameMapper {
                     .languageSupports(game.getLanguageSupports())
                     .bundles(game.getBundles())
                     .remakes(game.getRemakes())
+                    .versionParent(game.getVersionParent())
+                    .gameEngines(game.getGameEngines())
                     .build());
         }
         return gameDbo;
