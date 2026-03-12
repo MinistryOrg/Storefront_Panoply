@@ -52,8 +52,8 @@ public class IgdbService {
                 "sort id asc;";
 
         try {
-           List<Genre> genres = igdbClient.getGenres(body);
-           return genres;
+            List<Genre> genres = igdbClient.getGenres(body);
+            return genres;
         } catch (Exception e) {
             log.error("Failed to get the genres {}", e);
             throw e;
@@ -118,27 +118,27 @@ public class IgdbService {
 
             String body = """
                     fields
-                   
+                    
                       name,
                       summary,
                       storyline,
                       first_release_date,
                       created_at, updated_at,
                       status, hypes,
-
+                    
                       total_rating,
                       total_rating_count,
                       aggregated_rating,
                       aggregated_rating_count,
                       rating,
-                  
+                    
                       cover.image_id,
                       screenshots.image_id,
                       artworks.image_id,
                       artworks.artwork_type,
                       videos.video_id,
                       videos.name,
-                   
+                    
                       platforms.*,
                       game_status.status,
                     
@@ -282,8 +282,42 @@ public class IgdbService {
         while (true) {
             String size = "limit " + limit + "; offset " + offset + ";";
             String body = """
-                    fields as_child_relations,as_parent_relations,checksum,created_at,games,name,slug,type,updated_at,url;
-                """ + size + ";";
+                        fields
+                          name,
+                          slug,
+                          url,
+                          type,
+                          created_at,
+                          updated_at,
+                          checksum,
+                    
+                          games.name,
+                          games.summary,
+                          games.first_release_date,
+                          games.hypes,
+                          games.rating,
+                          games.total_rating,
+                          games.total_rating_count,
+                    
+                          games.cover.image_id,
+                          games.screenshots.image_id,
+                          games.artworks.image_id,
+                    
+                          games.platforms.name,
+                          games.genres.name,
+                    
+                          games.version_parent,
+                          games.version_parent.name,
+                    
+                          games.parent_game,
+                          games.parent_game.name,
+                    
+                          games.game_type,
+                    
+                          as_child_relations,
+                          as_parent_relations;
+                    
+                    """ + size + ";";
 
             List<Collection> collections;
 
@@ -333,8 +367,38 @@ public class IgdbService {
             String size = "limit " + limit + "; offset " + offset + ";";
             // todo can i get the popularity?
             String body = """
-                    fields checksum,created_at,games,name,slug,updated_at,url;
-                """ + size + ";";
+                        fields
+                          name,
+                          slug,
+                          url,
+                          created_at,
+                          updated_at,
+                          checksum,
+                    
+                          games.name,
+                          games.summary,
+                          games.first_release_date,
+                          games.hypes,
+                          games.rating,
+                          games.total_rating,
+                          games.total_rating_count,
+                    
+                          games.cover.image_id,
+                          games.screenshots.image_id,
+                          games.artworks.image_id,
+                    
+                          games.platforms.name,
+                          games.genres.name,
+                    
+                          games.version_parent,
+                          games.version_parent.name,
+                    
+                          games.parent_game,
+                          games.parent_game.name,
+                    
+                          games.game_type;
+                    
+                    """ + size + ";";
 
             List<Franchise> franchises;
 
