@@ -1,9 +1,7 @@
 package com.mom.storefront_panoply.games.model.dto;
 
-import com.mom.storefront_panoply.igdb.model.GameStatus;
-import com.mom.storefront_panoply.igdb.model.GameType;
-import com.mom.storefront_panoply.igdb.model.Platform;
-import com.mom.storefront_panoply.igdb.model.Video;
+import com.mom.storefront_panoply.games.model.dbo.GameEntity;
+import com.mom.storefront_panoply.igdb.model.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,5 +28,6 @@ public class GameDto {
     private Long type;
     private GameStatus gameStatus;
     private LocalDateTime firstReleaseDate;
+    private Game versionParent;
 
 }

@@ -52,6 +52,7 @@ public class GameMapper {
                 .type(entity.getType())
                 .firstReleaseDate(entity.getFirstReleaseDate() != null ? entity.getFirstReleaseDate() : null)
                 .gameStatus(entity.getGameStatus())
+                .versionParent(entity.getVersionParent())
                 .build();
     }
 
