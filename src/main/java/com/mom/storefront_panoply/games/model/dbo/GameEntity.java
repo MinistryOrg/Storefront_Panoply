@@ -53,7 +53,7 @@ public class GameEntity {
 
     // Relations
 
-    private List<Game> similarGames;
+    private List<GameEntity> similarGames;
 
     private List<Platform> platforms;
 
@@ -76,24 +76,24 @@ public class GameEntity {
 
     // Versions
 
-    private List<Game> ports;
-    private List<Game> remakes;
-    private List<Game> remasters;
+    private List<GameEntity> ports;
+    private List<GameEntity> remakes;
+    private List<GameEntity> remasters;
 
     private String versionTitle;
 
-    private Game versionParent;
+    private GameEntity versionParent;
 
-    private Game parentGame;
+    private GameEntity parentGame;
 
     // DLC
 
-    private List<Game> dlcs;
-    private List<Game> expansions;
+    private List<GameEntity> dlcs;
+    private List<GameEntity> expansions;
 
-    private List<Game> standaloneExpansions;
+    private List<GameEntity> standaloneExpansions;
 
-    private List<Game> bundles;
+    private List<GameEntity> bundles;
 
     // Franchise / Collection
 
@@ -101,7 +101,7 @@ public class GameEntity {
 
     private List<FranchiseEntity> franchises;
 
-    private List<Collection> collections;
+    private List<CollectionEntity> collections;
 
     private Long type;
 

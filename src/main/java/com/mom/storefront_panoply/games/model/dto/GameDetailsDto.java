@@ -49,7 +49,7 @@ public class GameDetailsDto {
 
     /* ===================== Relations ===================== */
 
-    private List<Game> similarGames;
+    private List<GameDetailsDto> similarGames;
 
     private List<Platform> platforms;
 
@@ -72,32 +72,32 @@ public class GameDetailsDto {
 
     /* ===================== Versions ===================== */
 
-    private List<Game> ports;
-    private List<Game> remakes;
-    private List<Game> remasters;
+    private List<GameDetailsDto> ports;
+    private List<GameDetailsDto> remakes;
+    private List<GameDetailsDto> remasters;
 
     private String versionTitle;
 
-    private Game versionParent;
+    private GameDetailsDto versionParent;
 
-    private Game parentGame;
+    private GameDetailsDto parentGame;
 
     /* ===================== DLC ===================== */
 
-    private List<Game> dlcs;
-    private List<Game> expansions;
+    private List<GameDetailsDto> dlcs;
+    private List<GameDetailsDto> expansions;
 
-    private List<Game> standaloneExpansions;
+    private List<GameDetailsDto> standaloneExpansions;
 
-    private List<Game> bundles;
+    private List<GameDetailsDto> bundles;
 
     /* ===================== Franchise / Collection ===================== */
 
-    private FranchiseEntity franchise;
+    private FranchiseDto franchise;
 
-    private List<FranchiseEntity> franchises;
+    private List<FranchiseDto> franchises;
 
-    private List<Collection> collections;
+    private List<CollectionDto> collections;
 
     private Long type;
 

@@ -18,5 +18,6 @@ public class CollectionDto {
     @Id
     private Long id;
     private String name;
-    private List<GameEntity> games;
+    private List<GameDetailsDto
+            > games;
 }

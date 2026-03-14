@@ -13,7 +13,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class GameMapper {
@@ -52,7 +54,7 @@ public class GameMapper {
                 .type(entity.getType())
                 .firstReleaseDate(entity.getFirstReleaseDate() != null ? entity.getFirstReleaseDate() : null)
                 .gameStatus(entity.getGameStatus())
-                .versionParent(entity.getVersionParent())
+                .versionParent(toGameDto(entity.getVersionParent()))
                 .build();
     }
 
@@ -89,9 +91,20 @@ public class GameMapper {
                     .genreName(genres != null ? genres : new ArrayList<>())
                     .video(entity.getVideos())
                     .gameStatus(entity.getGameStatus())
+                    .type(entity.getType())
                     .build());
         }
         return gameDtos;
+    }
+
+    public List<GameDetailsDto> toGameDetailsDto(List<GameEntity> games) {
+        if (Util.nullOrEmpty(games)) {
+            return Collections.emptyList();
+        }
+
+        return games.stream()
+                .map(this::toGameDetailsDto)
+                .collect(Collectors.toList());
     }
 
     public GameDetailsDto toGameDetailsDto(GameEntity game) {
@@ -114,6 +127,7 @@ public class GameMapper {
                 .cover(game.getCover())
                 .platforms(game.getPlatforms())
                 .genres(game.getGenres())
+                .type(game.getType())
                 .themes(game.getThemes())
                 .screenshots(game.getScreenshots())
                 .videos(game.getVideos())
@@ -123,25 +137,36 @@ public class GameMapper {
                 .keywords(game.getKeywords())
                 .isPopular(game.getIsPopular())
                 .alternativeNames(game.getAlternativeNames())
-                .franchise(game.getFranchise())
-                .franchises(game.getFranchises())
-                .similarGames(game.getSimilarGames())
-                .dlcs(game.getDlcs())
-                .collections(game.getCollections())
+                .franchise(toFranchise(game.getFranchise()))
+                .franchises(toFranchisesDto(game.getFranchises()))
+                .similarGames(toGameDetailsDto(game.getSimilarGames()))
+                .dlcs(toGameDetailsDto(game.getDlcs()))
+                .collections(toCollections(game.getCollections()))
                 .gameModes(game.getGameModes())
                 .externalGames(game.getExternalGames())
                 .involvedCompanies(game.getInvolvedCompanies())
                 .gameLocalizations(game.getGameLocalizations())
                 .languageSupports(game.getLanguageSupports())
-                .bundles(game.getBundles())
-                .remakes(game.getRemakes())
+                .bundles(toGameDetailsDto(game.getBundles()))
+                .remakes(toGameDetailsDto(game.getRemakes()))
                 .type(game.getType())
                 .websites(game.getWebsites())
                 .ageRatings(game.getAgeRatings())
                 .playerPerspectives(game.getPlayerPerspectives())
                 .gameEngines(game.getGameEngines())
                 .gameStatus(game.getGameStatus())
+                .expansions(toGameDetailsDto(game.getExpansions()))
                 .build();
+    }
+
+    public List<GameEntity> toEntity(List<Game> games, boolean isPopular) {
+        if (Util.nullOrEmpty(games)) {
+            return Collections.emptyList();
+        }
+
+        return games.stream()
+                .map(game -> toEntity(game, isPopular))
+                .collect(Collectors.toList());
     }
 
     public GameEntity toEntity(Game game, boolean isPopular) {
@@ -177,23 +202,25 @@ public class GameMapper {
                 .alternativeNames(game.getAlternativeNames())
                 .franchise(toFranchise(game.getFranchise()))
                 .franchises(toFranchises(game.getFranchises()))
-                .similarGames(game.getSimilarGames())
-                .dlcs(game.getDlcs())
-                .collections(game.getCollections())
+                .similarGames(toEntity(game.getSimilarGames(), false))
+                .dlcs(toEntity(game.getDlcs(),false))
+                .collections(toCollection(game.getCollections()))
                 .gameModes(game.getGameModes())
                 .externalGames(game.getExternalGames())
                 .involvedCompanies(game.getInvolvedCompanies())
                 .gameLocalizations(game.getGameLocalizations())
                 .languageSupports(game.getLanguageSupports())
-                .bundles(game.getBundles())
-                .remakes(game.getRemakes())
-                .parentGame(game.getParentGame())
-                .versionParent(game.getVersionParent())
+                .bundles(toEntity(game.getBundles(), false))
+                .remakes(toEntity(game.getRemakes(), false))
+                .parentGame(toEntity(game.getParentGame(), false))
+                .versionParent(toEntity(game.getVersionParent(), false))
                 .versionTitle(game.getVersionTitle())
                 .ageRatings(game.getAgeRatings())
                 .playerPerspectives(game.getPlayerPerspectives())
                 .gameEngines(game.getGameEngines())
                 .gameStatus(game.getGameStatus())
+                .type(game.getType())
+                .expansions(toEntity(game.getExpansions(), false))
                 .build();
     }
 
@@ -288,14 +315,14 @@ public class GameMapper {
         return gameModesDbo;
     }
 
-    public CollectionDto toCollection(CollectionEntity collection, List<GameEntity> gameEntities) {
+    public CollectionDto toCollection(CollectionEntity collection) {
         if (Util.nullOrEmpty(collection)) {
             return null;
         }
         return CollectionDto.builder()
                 .id(collection.getId())
                 .name(collection.getName())
-                .games(gameEntities)
+                .games(toGameDetailsDto(collection.getGames()))
                 .build();
     }
 
@@ -348,6 +375,16 @@ public class GameMapper {
         return collectionDbo;
     }
 
+    public List<CollectionDto> toCollections(List<CollectionEntity> collections) {
+        if (Util.nullOrEmpty(collections)) {
+            return Collections.emptyList();
+        }
+
+        return collections.stream()
+                .map(this::toCollection)
+                .collect(Collectors.toList());
+    }
+
     public CollectionEntity toCollectionEntity(Collection collection) {
         if (Util.nullOrEmpty(collection)) {
             return null;
@@ -394,18 +431,20 @@ public class GameMapper {
                     .keywords(game.getKeywords())
                     .alternativeNames(game.getAlternativeNames())
                     .franchise(toFranchise(game.getFranchise()))
-                    .similarGames(game.getSimilarGames())
-                    .dlcs(game.getDlcs())
-                    .collections(game.getCollections())
+                    .similarGames(toEntity(game.getSimilarGames(), false))
+                    .dlcs(toEntity(game.getDlcs(), false))
+                    .collections(toCollection(game.getCollections()))
                     .gameModes(game.getGameModes())
                     .externalGames(game.getExternalGames())
                     .involvedCompanies(game.getInvolvedCompanies())
                     .gameLocalizations(game.getGameLocalizations())
                     .languageSupports(game.getLanguageSupports())
-                    .bundles(game.getBundles())
-                    .remakes(game.getRemakes())
-                    .versionParent(game.getVersionParent())
+                    .bundles(toEntity(game.getBundles(), false))
+                    .remakes(toEntity(game.getRemakes(), false))
+                    .versionParent(toEntity(game.getVersionParent(), false))
                     .gameEngines(game.getGameEngines())
+                    .type(game.getType())
+                    .expansions(toEntity(game.getExpansions(), false))
                     .build());
         }
         return gameDbo;
@@ -437,7 +476,20 @@ public class GameMapper {
         return franchiseDbo;
     }
 
-    public FranchiseDto toFranchise(FranchiseEntity franchise, List<GameEntity> game) {
+    public List<FranchiseDto> toFranchisesDto(List<FranchiseEntity> franchises) {
+        if (Util.nullOrEmpty(franchises)) {
+            return null;
+        }
+
+        List<FranchiseDto> franchiseDto = new ArrayList<>(franchises.size());
+        for (FranchiseEntity franchise : franchises) {
+            franchiseDto.add(this.toFranchise(franchise));
+        }
+
+        return franchiseDto;
+    }
+
+    public FranchiseDto toFranchise(FranchiseEntity franchise) {
         if (Util.nullOrEmpty(franchise)) {
             return null;
         }
@@ -445,7 +497,7 @@ public class GameMapper {
                 .id(franchise.getId())
                 .name(franchise.getName())
                 .url(franchise.getUrl())
-                .games(toGameDto(game))
+                .games(toGameDto(franchise.getGames()))
                 .build();
     }
 

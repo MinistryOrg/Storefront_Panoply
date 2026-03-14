@@ -28,6 +28,6 @@ public class GameDto {
     private Long type;
     private GameStatus gameStatus;
     private LocalDateTime firstReleaseDate;
-    private Game versionParent;
+    private GameDto versionParent;
 
 }

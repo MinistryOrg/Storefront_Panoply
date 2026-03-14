@@ -5,12 +5,10 @@ import com.mom.storefront_panoply.games.filters.SearchFilter;
 import com.mom.storefront_panoply.games.mapper.GameMapper;
 import com.mom.storefront_panoply.games.model.dbo.*;
 import com.mom.storefront_panoply.games.model.dto.*;
-import com.mom.storefront_panoply.igdb.model.Game;
 import com.mom.storefront_panoply.tools.PagedResponse;
 import com.mom.storefront_panoply.tools.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -288,31 +286,10 @@ public class GameService {
             }
         }
 
-        // Fetch all games in one query
-        List<GameEntity> allGames = getGames(GameFilter.builder().gameIds(allGameIds).build(), true);
-
-        // Map game ID to game entity using a HashMap
-        Map<String, GameEntity> gameMap = new HashMap<>();
-        for (GameEntity game : allGames) {
-            if (game.getId() != null) {
-                gameMap.put(game.getId(), game);
-            }
-        }
-
         // Build franchise DTOs
         List<CollectionDto> collectionDtos = new ArrayList<>(entities.size());
         for (CollectionEntity collectionEntity : entities) {
-            List<GameEntity> collectionGames = new ArrayList<>();
-            List<GameEntity> games = collectionEntity.getGames();
-            if (!Util.nullOrEmpty(games)) {
-                for (GameEntity g : games) {
-                    GameEntity mapped = gameMap.get(g.getId());
-                    if (mapped != null) {
-                        collectionGames.add(mapped);
-                    }
-                }
-            }
-            collectionDtos.add(gameMapper.toCollection(collectionEntity, collectionGames));
+            collectionDtos.add(gameMapper.toCollection(collectionEntity));
         }
 
         // Wrap in Page
@@ -346,45 +323,11 @@ public class GameService {
         // Fetch paginated franchises
         query.with(pageable);
         List<FranchiseEntity> franchises = mongoTemplate.find(query, FranchiseEntity.class);
-
-        // Collect all game IDs
-        Set<String> allGameIds = new HashSet<>();
-        for (FranchiseEntity franchise : franchises) {
-            List<GameEntity> games = franchise.getGames();
-            if (!Util.nullOrEmpty(games)) {
-                for (GameEntity game : games) {
-                    if (game.getId() != null) {
-                        allGameIds.add(game.getId());
-                    }
-                }
-            }
-        }
-
-        // Fetch all games in one query
-        List<GameEntity> allGames = getGames(GameFilter.builder().gameIds(allGameIds).build(), true);
-
-        // Map game ID to game entity using a HashMap
-        Map<String, GameEntity> gameMap = new HashMap<>();
-        for (GameEntity game : allGames) {
-            if (game.getId() != null) {
-                gameMap.put(game.getId(), game);
-            }
-        }
+        List<FranchiseDto> franchiseDtos = new ArrayList<>(franchises.size());
 
         // Build franchise DTOs
-        List<FranchiseDto> franchiseDtos = new ArrayList<>(franchises.size());
         for (FranchiseEntity franchise : franchises) {
-            List<GameEntity> franchiseGames = new ArrayList<>();
-            List<GameEntity> games = franchise.getGames();
-            if (!Util.nullOrEmpty(games)) {
-                for (GameEntity g : games) {
-                    GameEntity mapped = gameMap.get(g.getId());
-                    if (mapped != null) {
-                        franchiseGames.add(mapped);
-                    }
-                }
-            }
-            franchiseDtos.add(gameMapper.toFranchise(franchise, franchiseGames));
+            franchiseDtos.add(gameMapper.toFranchise(franchise));
         }
 
         // Wrap in Page
