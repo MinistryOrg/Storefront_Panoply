@@ -83,6 +83,7 @@ public class GameMapper {
             gameDtos.add(GameDto.builder()
                     .id(Long.valueOf(entity.getId()))
                     .name(entity.getName())
+                    .firstReleaseDate(entity.getFirstReleaseDate() != null ? entity.getFirstReleaseDate() : null)
                     .summary(entity.getSummary())
                     .coverImageId(entity.getCover() != null ? entity.getCover().getImageId() : null)
                     .totalRating(entity.getTotalRating() != null ? entity.getTotalRating().toString() : null)
@@ -92,6 +93,7 @@ public class GameMapper {
                     .video(entity.getVideos())
                     .gameStatus(entity.getGameStatus())
                     .type(entity.getType())
+                    .versionParent(toGameDto(entity.getVersionParent()))
                     .build());
         }
         return gameDtos;
@@ -156,7 +158,6 @@ public class GameMapper {
                 .gameEngines(game.getGameEngines())
                 .gameStatus(game.getGameStatus())
                 .expansions(toGameDetailsDto(game.getExpansions()))
-                .firstReleaseDate(game.getFirstReleaseDate())
                 .platforms(game.getPlatforms())
                 .screenshots(game.getScreenshots())
                 .versionParent(toGameDetailsDto(game.getVersionParent()))
