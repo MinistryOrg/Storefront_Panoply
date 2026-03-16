@@ -156,6 +156,10 @@ public class GameMapper {
                 .gameEngines(game.getGameEngines())
                 .gameStatus(game.getGameStatus())
                 .expansions(toGameDetailsDto(game.getExpansions()))
+                .firstReleaseDate(game.getFirstReleaseDate())
+                .platforms(game.getPlatforms())
+                .screenshots(game.getScreenshots())
+                .versionParent(toGameDetailsDto(game.getVersionParent()))
                 .build();
     }
 
