@@ -53,7 +53,7 @@ public class GameService {
     }
 
     public List<GameEntity> filterGames(GameFilter filter, Boolean lightWeight) {
-        Query query = buildGameQuery(filter, lightWeight);
+        Query query = buildGameQuery(filter, lightWeight, false);
         return mongoTemplate.find(query, GameEntity.class);
     }
 
@@ -65,9 +65,9 @@ public class GameService {
 
         Query query;
         if (startsWith) {
-            query = buildSearchGameQuery(filter);
+            query = buildGameQuery(filter, true, true);
         } else {
-            query = buildGameQuery(filter, true);
+            query = buildGameQuery(filter, true, false);
         }
 
         // sort
@@ -90,7 +90,7 @@ public class GameService {
         return new PageImpl<>(results, pageable, total);
     }
 
-    private Query buildGameQuery(GameFilter filter, Boolean lightWeight) {
+    private Query buildGameQuery(GameFilter filter, Boolean lightWeight, Boolean startsWith) {
         Query query = new Query();
         List<Criteria> criteriaList = new ArrayList<>();
         // don't return all fields
@@ -121,24 +121,24 @@ public class GameService {
         }
 
         // Filter by game id
-        if (!Util.nullOrEmpty(filter.getGameName())) {
+        if (!Util.nullOrEmpty(filter.getGameId())) {
             criteriaList.add(Criteria.where("name").is(filter.getGameId()));
         }
 
-        // filter by name
-        if (!Util.nullOrEmpty(filter.getGameName())) {
+        // filter by name that's start with
+        if (!Util.nullOrEmpty(filter.getGameName()) && startsWith) {
             criteriaList.add(
                     Criteria.where("name")
-                            .regex(filter.getGameName(), "i")
-            );
+                            .regex("^" + Pattern.quote(filter.getGameName())
+            ));
         }
 
-        // filter by company name
-        if (!Util.nullOrEmpty(filter.getCompanyName())) {
+        // filter by company name that's start with
+        if (!Util.nullOrEmpty(filter.getCompanyName()) && startsWith) {
             criteriaList.add(
                     Criteria.where("involvedCompanies.company.name")
-                            .regex(filter.getCompanyName(), "i")
-            );
+                            .regex("^" + Pattern.quote(filter.getCompanyName())
+            ));
         }
 
         // Trending
@@ -189,16 +189,27 @@ public class GameService {
             criteriaList.add(Criteria.where("createdAt").gte(filter.getCreatedAt()));
         }
 
+        // Released date with range
+        if (!Util.nullOrEmpty(filter.getFirstReleasedDate()) && Util.nullOrEmpty(filter.getLastReleasedDate())) {
+            Criteria releaseDateCriteria = Criteria.where("firstReleaseDate");
+
+            releaseDateCriteria = releaseDateCriteria.gte(filter.getFirstReleasedDate());
+
+            releaseDateCriteria = releaseDateCriteria.lte(filter.getLastReleasedDate());
+
+            criteriaList.add(releaseDateCriteria);
+        }
+
         // Upcoming
-        if (!Util.nullOrEmpty(filter.getFirstReleasedDate())) {
+        if (!Util.nullOrEmpty(filter.getFirstReleasedDate()) && !Util.nullOrEmpty(filter.getLastReleasedDate())) {
             criteriaList.add(Criteria.where("firstReleaseDate").gte(filter.getFirstReleasedDate()));
         }
 
         // Platform
-        if (!Util.nullOrEmpty(filter.getPlatform())) {
+        if (!Util.nullOrEmpty(filter.getPlatforms())) {
             criteriaList.add(
                     Criteria.where("platforms")
-                            .elemMatch(Criteria.where("name").is(filter.getPlatform().trim()))
+                            .elemMatch(Criteria.where("name").in(filter.getPlatforms()))
             );
         }
 
@@ -213,6 +224,45 @@ public class GameService {
                     )
             );
         }
+
+        // by game name starts with
+        if (!Util.nullOrEmpty(filter.getGameName()) && !startsWith) {
+            criteriaList.add(startsWithIgnoreCase("name", filter.getGameName()));
+        }
+
+        // by company name that starts with
+        if (!Util.nullOrEmpty(filter.getCompanyName()) && !startsWith) {
+            criteriaList.add(startsWithIgnoreCase("involvedCompanies.company.name", filter.getCompanyName()));
+        }
+
+        // Mode
+        if (!Util.nullOrEmpty(filter.getMode())) {
+            criteriaList.add(
+                    Criteria.where("gameModes")
+                            .elemMatch(Criteria.where("name").is(filter.getMode().trim()))
+            );
+        }
+
+        // Genres
+        if (!Util.nullOrEmpty(filter.getGenres())) {
+            criteriaList.add(
+                    Criteria.where("genres")
+                            .elemMatch(Criteria.where("name").is(filter.getGenres().trim()))
+            );
+        }
+
+        // Types - many values
+        if (!Util.nullOrEmpty(filter.getTypes())) {
+            criteriaList.add(
+                    Criteria.where("type").in(filter.getTypes())
+            );
+        }
+
+        // Rating
+        if (!Util.nullOrEmpty(filter.getRating())) {
+            criteriaList.add(Criteria.where("rating").gte(filter.getRating()));
+        }
+
 
         if (!criteriaList.isEmpty()) {
             query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
@@ -304,10 +354,22 @@ public class GameService {
     public GameSearchResult searchGame(SearchFilter searchFilter, Integer page, Integer size) {
         log.info("Search game with filter: {}", searchFilter);
         Pageable pageable = PageRequest.of(page, size);
-        PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
-                gameName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
 
-        PagedResponse<GameDto> byCompany = PagedResponse.from(filterGames(GameFilter.builder().companyName(searchFilter.getInput()).build(), pageable, true), gameMapper::toGameDto);
+
+        PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
+                gameName(searchFilter.getInput())
+                        .mode(searchFilter.getMode())
+                        .types(searchFilter.getTypes())
+                        .firstReleasedDate(searchFilter.getFirstReleasedDate())
+                        .lastReleasedDate(searchFilter.getLastReleasedDate())
+                        .genres(searchFilter.getGenres())
+                        .platforms(searchFilter.getPlatforms())
+                        .rating(searchFilter.getRating())
+                        .build(), pageable, true),
+                gameMapper::toGameDto);
+
+        PagedResponse<GameDto> byCompany = PagedResponse.from(filterGames(GameFilter.builder().companyName(searchFilter.getInput()).build(),
+                pageable, true), gameMapper::toGameDto);
 
         return GameSearchResult.builder().gamesByCompany(byCompany).gamesByName(byName).build();
     }
