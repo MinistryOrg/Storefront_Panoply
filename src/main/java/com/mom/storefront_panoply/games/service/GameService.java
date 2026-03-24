@@ -70,10 +70,11 @@ public class GameService {
             query = buildGameQuery(filter, true, false);
         }
 
-        // sort
-        if (!Util.nullOrEmpty(filter.getSortBy())) {
-            Sort sort = filter.getSortBy().toSpringSort();
-            query.with(sort);
+        // Default sort
+        if (Util.nullOrEmpty(filter.getSortBy())) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+        } else {
+            query.with(filter.getSortBy().toSpringSort());
         }
 
         // Pagination
@@ -190,7 +191,7 @@ public class GameService {
         }
 
         // Released date with range
-        if (!Util.nullOrEmpty(filter.getFirstReleasedDate()) && Util.nullOrEmpty(filter.getLastReleasedDate())) {
+        if (!Util.nullOrEmpty(filter.getFirstReleasedDate()) && !Util.nullOrEmpty(filter.getLastReleasedDate())) {
             Criteria releaseDateCriteria = Criteria.where("firstReleaseDate");
 
             releaseDateCriteria = releaseDateCriteria.gte(filter.getFirstReleasedDate());
@@ -201,7 +202,7 @@ public class GameService {
         }
 
         // Upcoming
-        if (!Util.nullOrEmpty(filter.getFirstReleasedDate()) && !Util.nullOrEmpty(filter.getLastReleasedDate())) {
+        if (!Util.nullOrEmpty(filter.getFirstReleasedDate()) && Util.nullOrEmpty(filter.getLastReleasedDate())) {
             criteriaList.add(Criteria.where("firstReleaseDate").gte(filter.getFirstReleasedDate()));
         }
 
