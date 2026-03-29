@@ -1,5 +1,6 @@
 package com.mom.storefront_panoply.games.controller;
 
+import com.mom.storefront_panoply.games.filters.FranchiseFilter;
 import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.filters.SearchFilter;
 import com.mom.storefront_panoply.games.model.dto.*;
@@ -46,9 +47,10 @@ public class GameController {
         return ResponseEntity.ok(gameService.getCollection(size, page));
     }
 
-    @GetMapping("franchises")
-    public ResponseEntity<FranchisesResponse> getFranchises(@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "0") Integer page) {
-        return ResponseEntity.ok(gameService.getFranchise(size, page));
+    @PostMapping("franchises")
+    public ResponseEntity<FranchisesResponse> getFranchises(@RequestParam(defaultValue = "10") Integer size, @RequestParam(defaultValue = "0") Integer page,
+                                                            @RequestBody FranchiseFilter filter) {
+        return ResponseEntity.ok(gameService.getFranchise(size, page, filter));
     }
 
 }

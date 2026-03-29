@@ -1,10 +1,13 @@
 package com.mom.storefront_panoply.games.service;
 
+import com.mom.storefront_panoply.games.filters.CollectionFilter;
+import com.mom.storefront_panoply.games.filters.FranchiseFilter;
 import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.filters.SearchFilter;
 import com.mom.storefront_panoply.games.mapper.GameMapper;
 import com.mom.storefront_panoply.games.model.dbo.*;
 import com.mom.storefront_panoply.games.model.dto.*;
+import com.mom.storefront_panoply.igdb.model.Franchise;
 import com.mom.storefront_panoply.tools.PagedResponse;
 import com.mom.storefront_panoply.tools.Util;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -38,7 +42,24 @@ public class GameService {
 
     public GameDetailsDto getGame(String gameId) {
         log.info("Get game with id {}", gameId);
-        return gameMapper.toGameDetailsDto(getGameById(gameId));
+        GameEntity gameEntity = getGameById(gameId);
+
+        Set<Long> franchiseIds = Optional.ofNullable(
+                gameEntity.getFranchises()
+        ).orElse(Collections.emptyList())
+                .stream().map(FranchiseRef::getId)
+                .collect(Collectors.toSet());
+
+        Set<Long> collectionIds = Optional.ofNullable(
+                        gameEntity.getCollections()
+                ).orElse(Collections.emptyList())
+                .stream().map(CollectionRef::getId)
+                .collect(Collectors.toSet());
+
+        List<FranchiseDto> franchiseDto = getFranchises(FranchiseFilter.builder().ids(franchiseIds).build());
+        List<CollectionDto> collectionsDto = getCollections(CollectionFilter.builder().ids(collectionIds).build());
+
+        return gameMapper.toGameDetailsDto(gameEntity, franchiseDto, collectionsDto);
     }
 
     public GameEntity getGameById(String gameId) {
@@ -90,6 +111,51 @@ public class GameService {
 
         return new PageImpl<>(results, pageable, total);
     }
+
+    private Query buildCollectionFilter(CollectionFilter filter) {
+        Query query = new Query();
+        List<Criteria> criteriaList = new ArrayList<>();
+        // don't return all fields
+
+        // Filter by single ID
+        if (!Util.nullOrEmpty(filter.getId())) {
+            criteriaList.add(Criteria.where("_id").is(filter.getId()));
+        }
+
+        // Filter by multiple IDs
+        if (!Util.nullOrEmpty(filter.getIds())) {
+            criteriaList.add(Criteria.where("_id").in(filter.getIds()));
+        }
+
+        if (!criteriaList.isEmpty()) {
+            query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+        }
+
+        return query;
+    }
+
+    private Query buildFranchiseFilter(FranchiseFilter filter) {
+        Query query = new Query();
+        List<Criteria> criteriaList = new ArrayList<>();
+        // don't return all fields
+
+        // Filter by single ID
+        if (!Util.nullOrEmpty(filter.getId())) {
+            criteriaList.add(Criteria.where("_id").is(filter.getId()));
+        }
+
+        // Filter by multiple IDs
+        if (!Util.nullOrEmpty(filter.getIds())) {
+            criteriaList.add(Criteria.where("_id").in(filter.getIds()));
+        }
+
+        if (!criteriaList.isEmpty()) {
+            query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+        }
+
+        return query;
+    }
+
 
     private Query buildGameQuery(GameFilter filter, Boolean lightWeight, Boolean startsWith) {
         Query query = new Query();
@@ -375,10 +441,43 @@ public class GameService {
         return GameSearchResult.builder().gamesByCompany(byCompany).gamesByName(byName).build();
     }
 
-    public FranchisesResponse getFranchise(Integer size, Integer page) {
+    public List<FranchiseDto> getFranchises(FranchiseFilter filter) {
+        log.info("Get the franchises...");
+
+        Query query = buildFranchiseFilter(filter);
+
+        List<FranchiseEntity> franchises = mongoTemplate.find(query, FranchiseEntity.class);
+        List<FranchiseDto> franchiseDtos = new ArrayList<>(franchises.size());
+
+        // Build franchise DTOs
+        for (FranchiseEntity franchise : franchises) {
+            franchiseDtos.add(gameMapper.toFranchise(franchise));
+        }
+
+        return franchiseDtos;
+    }
+
+    public List<CollectionDto> getCollections(CollectionFilter filter) {
+        log.info("Get collections...");
+
+        Query query = buildCollectionFilter(filter);
+
+        List<CollectionEntity> collectionEntities = mongoTemplate.find(query, CollectionEntity.class);
+        List<CollectionDto> collections = new ArrayList<>(collectionEntities.size());
+
+        for (CollectionEntity collectionEntity : collectionEntities) {
+            collections.add(gameMapper.toCollection(collectionEntity));
+        }
+
+        return collections;
+    }
+
+
+
+    public FranchisesResponse getFranchise(Integer size, Integer page, FranchiseFilter filter) {
         log.info("Get the franchise...");
         Pageable pageable = PageRequest.of(page, size);
-        Query query = new Query();
+        Query query = buildFranchiseFilter(filter);
 
         // Count total franchises
         long total = mongoTemplate.count(query, FranchiseEntity.class);

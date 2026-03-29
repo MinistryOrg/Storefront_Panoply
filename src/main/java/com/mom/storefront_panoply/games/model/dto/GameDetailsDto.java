@@ -2,6 +2,7 @@ package com.mom.storefront_panoply.games.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.mom.storefront_panoply.games.model.dbo.FranchiseEntity;
+import com.mom.storefront_panoply.games.model.dbo.FranchiseRef;
 import com.mom.storefront_panoply.games.model.dbo.GenreEntity;
 import com.mom.storefront_panoply.igdb.model.*;
 import lombok.AllArgsConstructor;

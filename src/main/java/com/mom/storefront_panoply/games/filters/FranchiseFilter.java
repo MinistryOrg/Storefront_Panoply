@@ -12,6 +12,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FranchiseFilter {
-    private String id;
-    private Set<String> ids;
+    private Long id;
+    private Set<Long> ids;
 }

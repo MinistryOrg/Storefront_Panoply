@@ -97,11 +97,11 @@ public class GameEntity {
 
     // Franchise / Collection
 
-    private FranchiseEntity franchise;
+    private FranchiseRef franchise;
 
-    private List<FranchiseEntity> franchises;
+    private List<FranchiseRef> franchises;
 
-    private List<CollectionEntity> collections;
+    private List<CollectionRef> collections;
 
     private Long type;
 
