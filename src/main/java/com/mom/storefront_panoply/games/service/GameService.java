@@ -93,7 +93,7 @@ public class GameService {
 
         // Default sort
         if (Util.nullOrEmpty(filter.getSortBy())) {
-            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            query.with(Sort.by(Sort.Direction.ASC, "_id"));
         } else {
             query.with(filter.getSortBy().toSpringSort());
         }
