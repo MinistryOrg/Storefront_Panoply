@@ -18,8 +18,8 @@ public class GameFilter {
     private String gameId;
     private String gameName;
     private Set<String> types;
-    private String mode;
-    private String genres;
+    private Set<String> mode;
+    private Set<String> genres;
     private String companyName;
     private Set<String> platforms;
     private Set<String> gameIds;

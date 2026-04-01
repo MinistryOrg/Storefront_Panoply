@@ -16,8 +16,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class SearchFilter {
     private String input;
-    private String mode;
-    private String genres;
+    private Set<String> mode;
+    private Set<String> genres;
     private Set<String> types;
     private Set<String> platforms;
     private Double rating;

@@ -187,11 +187,6 @@ public class GameService {
             criteriaList.add(Criteria.where("_id").in(filter.getGameIds()));
         }
 
-        // Filter by game id
-        if (!Util.nullOrEmpty(filter.getGameId())) {
-            criteriaList.add(Criteria.where("name").is(filter.getGameId()));
-        }
-
         // filter by name that's start with
         if (!Util.nullOrEmpty(filter.getGameName()) && startsWith) {
             criteriaList.add(
@@ -306,7 +301,7 @@ public class GameService {
         if (!Util.nullOrEmpty(filter.getMode())) {
             criteriaList.add(
                     Criteria.where("gameModes")
-                            .elemMatch(Criteria.where("name").is(filter.getMode().trim()))
+                            .elemMatch(Criteria.where("name").in(filter.getMode()))
             );
         }
 
@@ -314,7 +309,7 @@ public class GameService {
         if (!Util.nullOrEmpty(filter.getGenres())) {
             criteriaList.add(
                     Criteria.where("genres")
-                            .elemMatch(Criteria.where("name").is(filter.getGenres().trim()))
+                            .elemMatch(Criteria.where("name").in(filter.getGenres()))
             );
         }
 
