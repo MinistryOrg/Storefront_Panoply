@@ -17,7 +17,7 @@ import java.util.Set;
 public class GameFilter {
     private String gameId;
     private String gameName;
-    private Set<String> types;
+    private Set<Integer> types;
     private Set<String> mode;
     private Set<String> genres;
     private String companyName;

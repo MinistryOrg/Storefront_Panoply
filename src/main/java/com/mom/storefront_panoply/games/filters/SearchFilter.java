@@ -18,9 +18,10 @@ public class SearchFilter {
     private String input;
     private Set<String> mode;
     private Set<String> genres;
-    private Set<String> types;
+    private Set<Integer> types;
     private Set<String> platforms;
     private Double rating;
     private LocalDateTime firstReleasedDate;
     private LocalDateTime lastReleasedDate;
+    private GameSort sortBy;
 }

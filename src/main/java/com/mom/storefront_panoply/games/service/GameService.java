@@ -434,6 +434,7 @@ public class GameService {
                         .genres(searchFilter.getGenres())
                         .platforms(searchFilter.getPlatforms())
                         .rating(searchFilter.getRating())
+                        .sortBy(searchFilter.getSortBy())
                         .build(), pageable, true),
                 gameMapper::toGameDto);
 
