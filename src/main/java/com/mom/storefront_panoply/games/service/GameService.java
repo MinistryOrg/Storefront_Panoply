@@ -172,7 +172,7 @@ public class GameService {
                     .include("platforms")
                     .include("screenshots.imageId")
                     .include("genres.name")
-                    .include("gameType")
+                    .include("type")
                     .include("firstReleaseDate")
                     .include("videos");
         }
