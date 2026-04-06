@@ -44,20 +44,27 @@ public class GameService {
         log.info("Get game with id {}", gameId);
         GameEntity gameEntity = getGameById(gameId);
 
-        Set<Long> franchiseIds = Optional.ofNullable(
-                gameEntity.getFranchises()
-        ).orElse(Collections.emptyList())
-                .stream().map(FranchiseRef::getId)
-                .collect(Collectors.toSet());
+        List<FranchiseDto> franchiseDto = new ArrayList<>();
 
-        Set<Long> collectionIds = Optional.ofNullable(
-                        gameEntity.getCollections()
-                ).orElse(Collections.emptyList())
-                .stream().map(CollectionRef::getId)
-                .collect(Collectors.toSet());
+        if(!Util.nullOrEmpty(gameEntity.getFranchise())) {
+            Set<Long> franchiseIds = Optional.ofNullable(
+                            gameEntity.getFranchises()
+                    ).orElse(Collections.emptyList())
+                    .stream().map(FranchiseRef::getId)
+                    .collect(Collectors.toSet());
 
-        List<FranchiseDto> franchiseDto = getFranchises(FranchiseFilter.builder().ids(franchiseIds).build());
-        List<CollectionDto> collectionsDto = getCollections(CollectionFilter.builder().ids(collectionIds).build());
+            franchiseDto = getFranchises(FranchiseFilter.builder().ids(franchiseIds).build());
+        }
+
+        List<CollectionDto> collectionsDto = new ArrayList<>();
+        if(!Util.nullOrEmpty(gameEntity.getCollections())) {
+            Set<Long> collectionIds = Optional.ofNullable(
+                            gameEntity.getCollections()
+                    ).orElse(Collections.emptyList())
+                    .stream().map(CollectionRef::getId)
+                    .collect(Collectors.toSet());
+            collectionsDto = getCollections(CollectionFilter.builder().ids(collectionIds).build());
+        }
 
         return gameMapper.toGameDetailsDto(gameEntity, franchiseDto, collectionsDto);
     }
