@@ -255,7 +255,7 @@ public class GameService {
 
         // Recently added
         if (!Util.nullOrEmpty(filter.getCreatedAt())) {
-            criteriaList.add(Criteria.where("createdAt").gte(filter.getCreatedAt()));
+            criteriaList.add(Criteria.where("firstReleaseDate").gte(filter.getCreatedAt()));
         }
 
         // Released date with range
