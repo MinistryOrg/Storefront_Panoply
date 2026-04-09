@@ -46,7 +46,7 @@ public class GameService {
 
         List<FranchiseDto> franchiseDto = new ArrayList<>();
 
-        if(!Util.nullOrEmpty(gameEntity.getFranchise())) {
+        if(!Util.nullOrEmpty(gameEntity.getFranchises())) {
             Set<Long> franchiseIds = Optional.ofNullable(
                             gameEntity.getFranchises()
                     ).orElse(Collections.emptyList())
@@ -422,28 +422,78 @@ public class GameService {
 
     public GameSearchResult searchGame(SearchFilter searchFilter, Integer page, Integer size) {
         log.info("Search game with filter: {}", searchFilter);
+
         Pageable pageable = PageRequest.of(page, size);
 
+        PagedResponse<GameDto> byCompany = new PagedResponse<>();
+        PagedResponse<GameDto> byName = new PagedResponse<>();
 
-        PagedResponse<GameDto> byName = PagedResponse.from(filterGames(GameFilter.builder().
-                gameName(searchFilter.getInput())
-                        .mode(searchFilter.getMode())
-                        .types(searchFilter.getTypes())
-                        .firstReleasedDate(searchFilter.getFirstReleasedDate())
-                        .lastReleasedDate(searchFilter.getLastReleasedDate())
-                        .genres(searchFilter.getGenres())
-                        .platforms(searchFilter.getPlatforms())
-                        .rating(searchFilter.getRating())
-                        .sortBy(searchFilter.getSortBy())
-                        .build(), pageable, true),
-                gameMapper::toGameDto);
+        // Search only by company
+        if (!Util.nullOrEmpty(searchFilter.getInputByCompany())) {
+            byCompany = PagedResponse.from(
+                    filterGames(
+                            GameFilter.builder()
+                                    .companyName(searchFilter.getInputByCompany())
+                                    .build(),
+                            pageable,
+                            true
+                    ),
+                    gameMapper::toGameDto
+            );
+        }
+        // Search by game name and also by company
+        else if (!Util.nullOrEmpty(searchFilter.getInput())) {
+            byName = PagedResponse.from(
+                    filterGames(
+                            buildGameSearchFilter(searchFilter, true),
+                            pageable,
+                            true
+                    ),
+                    gameMapper::toGameDto
+            );
 
-        PagedResponse<GameDto> byCompany = PagedResponse.from(filterGames(GameFilter.builder().companyName(searchFilter.getInput()).build(),
-                pageable, true), gameMapper::toGameDto);
+            byCompany = PagedResponse.from(
+                    filterGames(
+                            GameFilter.builder()
+                                    .companyName(searchFilter.getInput())
+                                    .build(),
+                            pageable,
+                            true
+                    ),
+                    gameMapper::toGameDto
+            );
+        }
+        // Default search with filters only
+        else {
+            byName = PagedResponse.from(
+                    filterGames(
+                            buildGameSearchFilter(searchFilter, true),
+                            pageable,
+                            true
+                    ),
+                    gameMapper::toGameDto
+            );
+        }
 
-        return GameSearchResult.builder().gamesByCompany(byCompany).gamesByName(byName).build();
+        return GameSearchResult.builder()
+                .gamesByCompany(byCompany)
+                .gamesByName(byName)
+                .build();
     }
 
+    private GameFilter buildGameSearchFilter(SearchFilter searchFilter, boolean startsWith) {
+        return GameFilter.builder()
+                .gameName(searchFilter.getInput())
+                .mode(searchFilter.getMode())
+                .types(searchFilter.getTypes())
+                .firstReleasedDate(searchFilter.getFirstReleasedDate())
+                .lastReleasedDate(searchFilter.getLastReleasedDate())
+                .genres(searchFilter.getGenres())
+                .platforms(searchFilter.getPlatforms())
+                .rating(searchFilter.getRating())
+                .sortBy(searchFilter.getSortBy())
+                .build();
+    }
     public List<FranchiseDto> getFranchises(FranchiseFilter filter) {
         log.info("Get the franchises...");
 

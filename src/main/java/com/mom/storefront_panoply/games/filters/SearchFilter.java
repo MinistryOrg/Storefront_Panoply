@@ -16,6 +16,8 @@ import java.util.Set;
 @AllArgsConstructor
 public class SearchFilter {
     private String input;
+    private String inputByName;
+    private String inputByCompany;
     private Set<String> mode;
     private Set<String> genres;
     private Set<Integer> types;

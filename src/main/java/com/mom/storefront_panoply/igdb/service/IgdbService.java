@@ -198,8 +198,7 @@ public class IgdbService {
                       external_games.url,
                       external_games.platform.name,
                       external_games.external_game_source.name,
-                    
-                      franchise,
+                   
                       franchises.name,
                       franchises.url,
                       franchises.games.name,
