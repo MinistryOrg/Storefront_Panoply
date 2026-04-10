@@ -143,28 +143,42 @@ public class GameMigrationService {
                 for (Object item : similarGamesList) {
 
                     if (item instanceof String similarGameId) {
-
+                        // Old format: ["123", "456"]
                         Document ref = new Document();
-                        ref.put("_id", similarGameId);
+                        ref.put("id", similarGameId);
 
                         similarGameRefs.add(ref);
                         changed = true;
 
                     } else if (item instanceof Document similarGameDoc) {
 
-                        // already migrated
-                        if (similarGameDoc.containsKey("_id") && !similarGameDoc.containsKey("slug")) {
+                        // Already correct GameRef format
+                        if (similarGameDoc.containsKey("id") && !similarGameDoc.containsKey("_id")) {
                             similarGameRefs.add(similarGameDoc);
                             continue;
                         }
 
-                        // old embedded SimilarGame object format
+                        // Current format: { "_id": "123" }
+                        if (similarGameDoc.containsKey("_id") && !similarGameDoc.containsKey("slug")) {
+                            Document ref = new Document();
+                            ref.put("id", String.valueOf(similarGameDoc.get("_id")));
+
+                            if (similarGameDoc.get("name") != null) {
+                                ref.put("name", String.valueOf(similarGameDoc.get("name")));
+                            }
+
+                            similarGameRefs.add(ref);
+                            changed = true;
+                            continue;
+                        }
+
+                        // Old embedded full SimilarGame object
                         Object similarGameId = similarGameDoc.get("_id");
                         Object similarGameName = similarGameDoc.get("name");
 
                         if (similarGameId != null) {
                             Document ref = new Document();
-                            ref.put("_id", String.valueOf(similarGameId));
+                            ref.put("id", String.valueOf(similarGameId));
 
                             if (similarGameName != null) {
                                 ref.put("name", String.valueOf(similarGameName));
@@ -177,11 +191,9 @@ public class GameMigrationService {
                 }
 
                 if (changed) {
-                    game.put("similarGames", similarGameRefs);
-
-                    collection.replaceOne(
+                    collection.updateOne(
                             Filters.eq("_id", game.get("_id")),
-                            game
+                            Updates.set("similarGames", similarGameRefs)
                     );
 
                     updated++;
