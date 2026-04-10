@@ -119,6 +119,78 @@ public class GameMigrationService {
         return scanned + " " + updated;
     }
 
+    public String migrateSimilarGamesToRef() {
+        MongoCollection<Document> collection = mongoTemplate.getCollection("games");
+
+        long scanned = 0;
+        long updated = 0;
+
+        try (var cursor = collection.find().batchSize(100).iterator()) {
+
+            while (cursor.hasNext()) {
+                Document game = cursor.next();
+                scanned++;
+
+                Object similarGamesObj = game.get("similarGames");
+
+                if (!(similarGamesObj instanceof List<?> similarGamesList) || similarGamesList.isEmpty()) {
+                    continue;
+                }
+
+                List<Document> similarGameRefs = new ArrayList<>();
+                boolean changed = false;
+
+                for (Object item : similarGamesList) {
+
+                    if (item instanceof String similarGameId) {
+
+                        Document ref = new Document();
+                        ref.put("_id", similarGameId);
+
+                        similarGameRefs.add(ref);
+                        changed = true;
+
+                    } else if (item instanceof Document similarGameDoc) {
+
+                        // already migrated
+                        if (similarGameDoc.containsKey("_id") && !similarGameDoc.containsKey("slug")) {
+                            similarGameRefs.add(similarGameDoc);
+                            continue;
+                        }
+
+                        // old embedded SimilarGame object format
+                        Object similarGameId = similarGameDoc.get("_id");
+                        Object similarGameName = similarGameDoc.get("name");
+
+                        if (similarGameId != null) {
+                            Document ref = new Document();
+                            ref.put("_id", String.valueOf(similarGameId));
+
+                            if (similarGameName != null) {
+                                ref.put("name", String.valueOf(similarGameName));
+                            }
+
+                            similarGameRefs.add(ref);
+                            changed = true;
+                        }
+                    }
+                }
+
+                if (changed) {
+                    game.put("similarGames", similarGameRefs);
+
+                    collection.replaceOne(
+                            Filters.eq("_id", game.get("_id")),
+                            game
+                    );
+
+                    updated++;
+                }
+            }
+        }
+
+        return "Scanned : " + scanned + " and updated : " + updated;
+    }
     private Document toCollectionRefDoc(Document collectionDoc) {
         Document ref = new Document();
 
