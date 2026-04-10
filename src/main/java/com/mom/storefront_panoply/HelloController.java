@@ -11,7 +11,7 @@ public class HelloController {
 
     @GetMapping("/lefta")
     public ResponseEntity<String> lefta() {
-        return ResponseEntity.ok("Θα βγάλουμε λεφτά ρε.. υπομονή.. 15:00 10/04/2026");
+        return ResponseEntity.ok("Θα βγάλουμε λεφτά ρε.. υπομονή.. 15:00 11/04/2026");
     }
 
     @GetMapping("")
