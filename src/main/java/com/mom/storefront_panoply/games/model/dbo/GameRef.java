@@ -14,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GameRef {
+    @Field("_id")
     private String id;
     private String name;
 }
