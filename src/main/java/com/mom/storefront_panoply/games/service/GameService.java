@@ -116,9 +116,7 @@ public class GameService {
         List<GameEntity> results =
                 mongoTemplate.find(query, GameEntity.class);
 
-        long total =
-                mongoTemplate.count(Query.of(query),
-                        GameEntity.class);
+        long total = mongoTemplate.count(Query.of(query).limit(-1).skip(-1), GameEntity.class);
 
         return new PageImpl<>(results, pageable, total);
     }
