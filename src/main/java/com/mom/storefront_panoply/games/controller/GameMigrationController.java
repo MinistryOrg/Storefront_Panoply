@@ -20,4 +20,10 @@ public class GameMigrationController {
         result += " Collection : " + gameMigrationService.migrateCollectionsToRef();
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping("similar-games-ref")
+    public ResponseEntity<String> migrateSimilarGamesToRef() {
+        String result = gameMigrationService.migrateSimilarGamesToRef();
+        return ResponseEntity.ok(result);
+    }
 }

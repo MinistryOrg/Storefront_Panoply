@@ -54,7 +54,7 @@ public class GameEntity {
 
     // Relations
 
-    private List<GameEntity> similarGames;
+    private List<GameRef> similarGames;
 
     private List<Platform> platforms;
 

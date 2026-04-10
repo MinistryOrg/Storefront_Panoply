@@ -99,6 +99,14 @@ public class GameMapper {
         return gameDtos;
     }
 
+    public List<GameRef> toGameRefs(List<Game> entities) {
+        final List<GameRef> gameRefs = new ArrayList<>(entities.size());
+        for (Game g : entities) {
+            gameRefs.add(GameRef.builder().id(String.valueOf(g.getId())).name(g.getName()).build());
+        }
+        return gameRefs;
+    }
+
     public List<GameDetailsDto> toGameDetailsDto(List<GameEntity> games) {
         if (Util.nullOrEmpty(games)) {
             return Collections.emptyList();
@@ -140,7 +148,8 @@ public class GameMapper {
                 .isPopular(game.getIsPopular())
                 .alternativeNames(game.getAlternativeNames())
                 .franchises(toFranchisesDtoRef(game.getFranchises()))
-                .similarGames(toGameDetailsDto(game.getSimilarGames()))
+                // todo is going to be problem?
+                .similarGames(null)
                 .dlcs(toGameDetailsDto(game.getDlcs()))
                 .collections(toCollectionsDto(game.getCollections()))
                 .gameModes(game.getGameModes())
@@ -164,7 +173,7 @@ public class GameMapper {
     }
 
 
-    public GameDetailsDto toGameDetailsDto(GameEntity game, List<FranchiseDto> franchises, List<CollectionDto> collections) {
+    public GameDetailsDto toGameDetailsDto(GameEntity game, List<FranchiseDto> franchises, List<CollectionDto> collections, List<GameDetailsDto> similarGames) {
         if (Util.nullOrEmpty(game)) {
             return null;
         }
@@ -195,7 +204,7 @@ public class GameMapper {
                 .isPopular(game.getIsPopular())
                 .alternativeNames(game.getAlternativeNames())
                 .franchises(franchises)
-                .similarGames(toGameDetailsDto(game.getSimilarGames()))
+                .similarGames(similarGames)
                 .dlcs(toGameDetailsDto(game.getDlcs()))
                 .collections(collections)
                 .gameModes(game.getGameModes())
@@ -260,7 +269,7 @@ public class GameMapper {
                 .isPopular(isPopular)
                 .alternativeNames(game.getAlternativeNames())
                 .franchises(toFranchisesRef(game.getFranchises()))
-                .similarGames(toEntity(game.getSimilarGames(), false))
+                .similarGames(toGameRefs(game.getSimilarGames()))
                 .dlcs(toEntity(game.getDlcs(),false))
                 .collections(toCollectionsRef(game.getCollections()))
                 .gameModes(game.getGameModes())
@@ -545,7 +554,7 @@ public class GameMapper {
                     .keywords(game.getKeywords())
                     .alternativeNames(game.getAlternativeNames())
                     .franchise(toFranchiseRef(game.getFranchise()))
-                    .similarGames(toEntity(game.getSimilarGames(), false))
+                    .similarGames(toGameRefs(game.getSimilarGames()))
                     .dlcs(toEntity(game.getDlcs(), false))
                     .collections(toCollectionRef(game.getCollections()))
                     .gameModes(game.getGameModes())

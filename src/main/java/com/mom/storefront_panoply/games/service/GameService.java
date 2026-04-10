@@ -66,7 +66,15 @@ public class GameService {
             collectionsDto = getCollections(CollectionFilter.builder().ids(collectionIds).build());
         }
 
-        return gameMapper.toGameDetailsDto(gameEntity, franchiseDto, collectionsDto);
+        Set<String> gamesIds = new HashSet<>(gameEntity.getSimilarGames().size());
+
+        for (GameRef gameRef : gameEntity.getSimilarGames()) {
+            gamesIds.add(gameRef.getId());
+        }
+
+        List<GameDetailsDto> games = gameMapper.toGameDetailsDto(getGames(GameFilter.builder().gameIds(gamesIds).build(), false));
+
+        return gameMapper.toGameDetailsDto(gameEntity, franchiseDto, collectionsDto, games);
     }
 
     public GameEntity getGameById(String gameId) {
@@ -90,13 +98,9 @@ public class GameService {
             Pageable pageable,
             Boolean startsWith
     ) {
-
-        Query query;
-        if (startsWith) {
-            query = buildGameQuery(filter, true, true);
-        } else {
-            query = buildGameQuery(filter, true, false);
-        }
+        Query query = startsWith
+                ? buildGameQuery(filter, true, true)
+                : buildGameQuery(filter, true, false);
 
         // Default sort
         if (Util.nullOrEmpty(filter.getSortBy())) {
