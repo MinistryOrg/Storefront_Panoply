@@ -14,7 +14,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GameRef {
-    @Field("_id")
+    // todo you need to change it in the db the id to be _id for the next gamee
+    @Field("id")
     private String id;
     private String name;
 }
