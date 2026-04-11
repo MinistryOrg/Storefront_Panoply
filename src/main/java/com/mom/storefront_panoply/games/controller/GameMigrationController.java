@@ -23,7 +23,7 @@ public class GameMigrationController {
 
     @PostMapping("similar-games-ref")
     public ResponseEntity<String> migrateSimilarGamesToRef() {
-        String result = gameMigrationService.migrateSimilarGamesToRef();
+        String result = gameMigrationService.migrateSimilarGamesToRefV2();
         return ResponseEntity.ok(result);
     }
 }
