@@ -199,17 +199,18 @@ public class GameService {
         // filter by name that's start with
         if (!Util.nullOrEmpty(filter.getGameName()) && startsWith) {
             criteriaList.add(
-                    Criteria.where("name")
-                            .regex("^" + Pattern.quote(filter.getGameName())
-            ));
+                    Criteria.where("name").regex(
+                            Pattern.compile("^" + Pattern.quote(filter.getGameName()), Pattern.CASE_INSENSITIVE)
+                    )
+            );
         }
-
         // filter by company name that's start with
         if (!Util.nullOrEmpty(filter.getCompanyName()) && startsWith) {
             criteriaList.add(
-                    Criteria.where("involvedCompanies.company.name")
-                            .regex("^" + Pattern.quote(filter.getCompanyName())
-            ));
+                    Criteria.where("involvedCompanies.company.name").regex(
+                            Pattern.compile("^" + Pattern.quote(filter.getCompanyName()), Pattern.CASE_INSENSITIVE)
+                    )
+            );
         }
 
         // Trending
