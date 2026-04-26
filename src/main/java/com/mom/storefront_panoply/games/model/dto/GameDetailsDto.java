@@ -118,5 +118,7 @@ public class GameDetailsDto {
 
     private List<Keyword> keywords;
 
+    private GameTimeToBeats timeToBeat;
+
     private Boolean isPopular;
 }

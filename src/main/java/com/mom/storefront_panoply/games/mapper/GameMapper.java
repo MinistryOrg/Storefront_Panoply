@@ -169,6 +169,7 @@ public class GameMapper {
                 .platforms(game.getPlatforms())
                 .screenshots(game.getScreenshots())
                 .versionParent(toGameDetailsDto(game.getVersionParent()))
+                .timeToBeat(game.getGameTimeToBeats())
                 .build();
     }
 
@@ -224,6 +225,7 @@ public class GameMapper {
                 .platforms(game.getPlatforms())
                 .screenshots(game.getScreenshots())
                 .versionParent(toGameDetailsDto(game.getVersionParent()))
+                .timeToBeat(game.getGameTimeToBeats())
                 .build();
     }
 
