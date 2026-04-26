@@ -2,13 +2,13 @@ package com.mom.storefront_panoply.igdb.service;
 
 import com.mom.storefront_panoply.igdb.clients.IgdbClient;
 import com.mom.storefront_panoply.igdb.model.*;
+import com.mom.storefront_panoply.igdb.model.Collection;
+import com.mom.storefront_panoply.tools.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -355,6 +355,56 @@ public class IgdbService {
         }
 
         log.info("IGDB collections streaming finished.");
+    }
+
+    public Map<String, GameTimeToBeats> getTimesToBeatMap() {
+        int offset = 0;
+        final int limit = 100;
+
+        Map<String, GameTimeToBeats> result = new HashMap<>();
+
+        log.info("Starting IGDB time-to-beat sync...");
+
+        while (true) {
+            String size = "limit " + limit + "; offset " + offset + ";";
+
+            String body = """
+                fields
+                  game_id, hastily, normally, completely;
+                """ + size + ";";
+
+            List<GameTimeToBeats> batch;
+
+            try {
+                batch = igdbClient.getGameTimeToBeats(body);
+            } catch (Exception e) {
+                log.error("Failed at offset {}", offset, e);
+                break;
+            }
+
+            if (Util.nullOrEmpty(batch)) break;
+
+            for (GameTimeToBeats ttb : batch) {
+                if (ttb.getGameId() != null) {
+                    result.put(String.valueOf(ttb.getGameId()), ttb);
+                }
+            }
+
+            if (batch.size() < limit) break;
+
+            offset += limit;
+
+            try {
+                Thread.sleep(260);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        log.info("Finished IGDB time-to-beat sync. Total: {}", result.size());
+
+        return result;
     }
 
     public void getAllFranchises(Consumer<List<Franchise>> pageConsumer) {

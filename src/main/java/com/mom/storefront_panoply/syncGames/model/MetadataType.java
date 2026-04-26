@@ -1,4 +1,4 @@
-package com.mom.storefront_panoply.sync.model;
+package com.mom.storefront_panoply.syncGames.model;
 
 public enum MetadataType {
     GAME,

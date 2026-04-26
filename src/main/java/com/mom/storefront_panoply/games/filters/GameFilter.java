@@ -16,13 +16,13 @@ import java.util.Set;
 @AllArgsConstructor
 public class GameFilter {
     private String gameId;
+    private Set<String> gameIds;
     private String gameName;
     private Set<Integer> types;
     private Set<String> mode;
     private Set<String> genres;
     private String companyName;
     private Set<String> platforms;
-    private Set<String> gameIds;
     private Boolean franchise;
     private Boolean popular;
     private Boolean trending;

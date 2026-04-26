@@ -37,4 +37,5 @@ public interface IgdbClient {
 
     @PostMapping(value = "/collections", consumes = "text/plain", produces = "application/json")
     List<Collection> getCollections(@RequestBody String body);
+
 }

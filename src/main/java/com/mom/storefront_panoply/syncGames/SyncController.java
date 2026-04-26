@@ -1,4 +1,4 @@
-package com.mom.storefront_panoply.sync;
+package com.mom.storefront_panoply.syncGames;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +35,14 @@ public class SyncController {
         syncGamesService.syncCollectionsFranchises();
         return ResponseEntity.ok("All good boss");
     }
+
+    @GetMapping("/sync-tb")
+    public ResponseEntity<String> syncTimeToBeat() {
+        syncGamesService.syncGameTimeToBeat();
+        return ResponseEntity.ok("All good boss");
+    }
+
+
 
 
 }

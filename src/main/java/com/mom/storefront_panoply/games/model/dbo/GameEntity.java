@@ -123,4 +123,6 @@ public class GameEntity {
     private List<Keyword> keywords;
 
     private Boolean isPopular;
+
+    private GameTimeToBeats gameTimeToBeats;
 }

@@ -1,13 +1,15 @@
-package com.mom.storefront_panoply.sync;
+package com.mom.storefront_panoply.syncGames;
 
+import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.mapper.GameMapper;
 import com.mom.storefront_panoply.games.model.dbo.*;
 import com.mom.storefront_panoply.games.service.GameService;
 import com.mom.storefront_panoply.igdb.model.*;
+import com.mom.storefront_panoply.igdb.model.Collection;
 import com.mom.storefront_panoply.igdb.service.IgdbService;
-import com.mom.storefront_panoply.sync.model.SyncMetadata;
-import com.mom.storefront_panoply.sync.model.MetadataType;
-import com.mom.storefront_panoply.sync.model.SyncType;
+import com.mom.storefront_panoply.syncGames.model.SyncMetadata;
+import com.mom.storefront_panoply.syncGames.model.MetadataType;
+import com.mom.storefront_panoply.syncGames.model.SyncType;
 import com.mom.storefront_panoply.tools.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,11 +20,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -169,6 +167,35 @@ public class SyncGamesService {
 
         log.info("Weekly game filter info sync finished.");
     }
+
+    @Scheduled(cron = "0 0 8 * * MON", zone = "Europe/Athens")
+    public void syncGameTimeToBeat() {
+        log.info("Starting weekly game time to beats (Monday 08:00)...");
+
+        try {
+            // get the time to beat
+            Map<String, GameTimeToBeats> timeToBeatsMap = igdbService.getTimesToBeatMap();
+            // collect the ids
+            Set<String> gameIds = timeToBeatsMap.keySet();
+            // get the games based on the specific ids
+            List<GameEntity> gameEntities = gameService.filterGames(GameFilter.builder().gameIds(gameIds).build(), true);
+            // set the time to beats on the game
+            for (GameEntity gameEntity : gameEntities) {
+                GameTimeToBeats timeToBeats = timeToBeatsMap.get(gameEntity.getId());
+                if (timeToBeats != null) {
+                    gameEntity.setGameTimeToBeats(timeToBeats);
+                }
+            }
+            // save the game
+            Util.bulkUpsert(gameEntities, GameEntity.class, mongoTemplate);
+
+        } catch (Exception e) {
+            log.error("Failed to sync game time beats info", e);
+        }
+
+        log.info("Weekly game time to beats info sync finished.");
+    }
+
 
     public void saveSyncMetadata(MetadataType type) {
         Instant now = Instant.now();
