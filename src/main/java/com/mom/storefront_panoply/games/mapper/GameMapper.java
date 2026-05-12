@@ -100,6 +100,9 @@ public class GameMapper {
     }
 
     public List<GameRef> toGameRefs(List<Game> entities) {
+        if(Util.nullOrEmpty(entities)){
+            return new ArrayList<>();
+        }
         final List<GameRef> gameRefs = new ArrayList<>(entities.size());
         for (Game g : entities) {
             gameRefs.add(GameRef.builder().id(String.valueOf(g.getId())).name(g.getName()).build());
