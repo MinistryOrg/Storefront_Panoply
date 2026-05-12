@@ -121,4 +121,6 @@ public class GameDetailsDto {
     private GameTimeToBeats timeToBeat;
 
     private Boolean isPopular;
+
+    private List<GameAddon> addons;
 }

@@ -10,16 +10,6 @@ public enum GameSort {
     POPULAR,
     HYPE;
 
-    public static GameSort from(String value) {
-        if (value == null) return NAME_ASC;
-
-        return switch (value.toLowerCase()) {
-            case "name_desc", "z-a" -> NAME_DESC;
-            case "popular" -> POPULAR;
-            case "hype" -> HYPE;
-            default -> NAME_ASC;
-        };
-    }
 
     public Sort toSpringSort() {
         return switch (this) {

@@ -226,6 +226,7 @@ public class GameMapper {
                 .screenshots(game.getScreenshots())
                 .versionParent(toGameDetailsDto(game.getVersionParent()))
                 .timeToBeat(game.getGameTimeToBeats())
+                .addons()
                 .build();
     }
 
