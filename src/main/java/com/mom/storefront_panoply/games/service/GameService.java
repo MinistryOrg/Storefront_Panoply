@@ -439,7 +439,7 @@ public class GameService {
         Query query;
 
         // If filter is null, return all franchises
-        if (franchiseFilter == null) {
+        if (Util.nullOrEmpty(franchiseFilter)) {
             query = new Query();
         } else {
             query = buildFranchiseFilter(franchiseFilter);
