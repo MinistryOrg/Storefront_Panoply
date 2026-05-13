@@ -221,7 +221,8 @@ public class SyncGamesService {
         SyncMetadata metadata = mongoTemplate.findOne(query, SyncMetadata.class);
 
         if (Util.nullOrEmpty(metadata)) {
-            return mongoTemplate.insert(SyncMetadata.builder().type(MetadataType.GAME).timestamp(null).id(UUID.randomUUID().toString()).build());
+            return null;
+            //return mongoTemplate.insert(SyncMetadata.builder().type(MetadataType.GAME).timestamp(null).id(UUID.randomUUID().toString()).build());
         }
 
         return metadata;
