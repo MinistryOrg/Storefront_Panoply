@@ -22,7 +22,7 @@ public class GameMigrationController {
     @DeleteMapping("delete-metadata")
     public ResponseEntity<String> howTheHellMetadataExist(){
         Query query = new Query();
-        query.addCriteria(Criteria.where("type").is(MetadataType.GAME));
+        query.addCriteria(Criteria.where("type").exists(true));
 
         mongoTemplate.remove(query, "franchises");
         return ResponseEntity.ok("Deleted franchises metadata");
