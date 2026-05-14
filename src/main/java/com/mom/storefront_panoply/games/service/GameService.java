@@ -166,6 +166,15 @@ public class GameService {
             criteriaList.add(Criteria.where("_id").in(filter.getIds()));
         }
 
+        // Filter by name
+        if (!Util.nullOrEmpty(filter.getName())) {
+            criteriaList.add(
+                    Criteria.where("name").regex(
+                            Pattern.compile("^" + Pattern.quote(filter.getName()), Pattern.CASE_INSENSITIVE)
+                    )
+            );
+        }
+
         if (!criteriaList.isEmpty()) {
             query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
         }
