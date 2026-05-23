@@ -2,7 +2,6 @@ package com.mom.storefront_panoply.exception;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,10 +26,8 @@ public class ExceptionLog {
 
     private String exceptionType;
 
-    @Column(length = 2000)
     private String message;
 
-    @Column(length = 5000)
     private String stackTrace;
 
     private String path;
