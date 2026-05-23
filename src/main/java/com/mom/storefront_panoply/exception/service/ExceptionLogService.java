@@ -27,6 +27,7 @@ public class ExceptionLogService {
             log.setPath(request.getRequestURI());
             log.setHttpMethod(request.getMethod());
         }
+        mongoTemplate.save(log);
     }
 
     private String getStackTraceAsString(Exception ex) {

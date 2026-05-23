@@ -72,6 +72,7 @@ public class SyncGamesService {
             }
         } catch (Exception e) {
             log.error("Failed to sync all games : " + e.getMessage());
+
             throw new RuntimeException(e);
         }
         saveSyncMetadata(MetadataType.GAME);
