@@ -2,6 +2,7 @@ package com.mom.storefront_panoply.exception.service;
 
 import com.mom.storefront_panoply.exception.ExceptionLog;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ExceptionLogService {
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
     public void save(Exception ex, HttpServletRequest request) {
         ExceptionLog log = new ExceptionLog();
@@ -32,7 +34,6 @@ public class ExceptionLogService {
         ex.printStackTrace(new PrintWriter(sw));
         return sw.toString();
     }
-
     public List<ExceptionLog> getExceptionLogs() {
         return mongoTemplate.findAll(ExceptionLog.class);
     }

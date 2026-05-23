@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("panoply")
 @RequiredArgsConstructor
 public class ExceptionLogController {
-    private ExceptionLogService exceptionLogService;
+    private final ExceptionLogService exceptionLogService;
 
     @GetMapping("logs")
     public List<ExceptionLog> getExceptionLogs(){
