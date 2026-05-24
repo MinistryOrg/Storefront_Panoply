@@ -27,6 +27,8 @@ public class ExceptionLogService {
             log.setStackTrace(ExceptionUtils.getStackTrace(ex));
             log.setPath(request.getRequestURI());
             log.setMethod(request.getMethod());
+            log.setExceptionType(ex.getClass().getName());
+            log.setOccurredAt(LocalDateTime.now());
 
             mongoTemplate.save(log);
 

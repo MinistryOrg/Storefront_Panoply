@@ -18,4 +18,9 @@ public class HelloController {
     public ResponseEntity<String> test (){
         return ResponseEntity.ok("Υπομονή και όνειρα..");
     }
+
+    @GetMapping("exception")
+    public ResponseEntity<String> exception(){
+        throw  new RuntimeException("Skataaa test");
+    }
 }

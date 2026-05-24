@@ -29,6 +29,7 @@ public class GlobalExceptionHandler {
         try {
             exceptionLogService.save(ex, request);
         } catch (Exception ignored) {
+            throw ignored;
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

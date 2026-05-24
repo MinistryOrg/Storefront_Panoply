@@ -2,10 +2,7 @@ package com.mom.storefront_panoply.exception;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -20,7 +17,8 @@ import java.time.LocalDateTime;
 public class ExceptionLog {
 
     @Id
-    private Long id;
+    @Generated
+    private String id;
 
     private LocalDateTime occurredAt;
 
@@ -38,5 +36,4 @@ public class ExceptionLog {
 
     private boolean emailed = false;
 
-    // getters and setters
 }
