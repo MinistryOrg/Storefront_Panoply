@@ -5,7 +5,7 @@ spring:
     uri: ${SPRING_DATA_MONGODB_URI}
 igdb:
   client-id: 1g2cdnqxkemqoru00cqqe0y4pnwhbk
-  client-secret: hbuqzs15mhez3olpvz64rqsbxyx798
+  client-secret: o9mupesbiqrx6guurk1h5aq90yd5yk
 
 # Feign timeouts and logging
 feign:
