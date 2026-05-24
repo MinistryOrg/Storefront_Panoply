@@ -30,6 +30,8 @@ public class ExceptionLog {
 
     private String stackTrace;
 
+    private String method;
+
     private String path;
 
     private String httpMethod;
