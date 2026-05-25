@@ -23,7 +23,8 @@ public class GameDto {
     private String rating;
     private List<String> screenshotsImageId;
     private List<String> genreName;
-    private List<Video> video;
+    private List<Video> videos;
+    private List<Artwork> artworks;
     private List<Platform> platforms;
     private Long type;
     private GameStatus gameStatus;
