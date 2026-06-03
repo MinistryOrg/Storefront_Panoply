@@ -4,17 +4,21 @@ import com.mom.storefront_panoply.games.filters.FranchiseFilter;
 import com.mom.storefront_panoply.games.filters.GameFilter;
 import com.mom.storefront_panoply.games.filters.SearchFilter;
 import com.mom.storefront_panoply.games.model.dto.*;
+import com.mom.storefront_panoply.games.service.GameAddOnService;
 import com.mom.storefront_panoply.games.service.GameService;
 import com.mom.storefront_panoply.tools.PagedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/panoply")
 @RequiredArgsConstructor
 public class GameController {
     private final GameService gameService;
+    private final GameAddOnService addOnsService;
 
     @PostMapping("games")
     public ResponseEntity<GameResponse> getGames(@RequestBody(required = false) GameFilter gamesFilter, @RequestParam(defaultValue = "10") Integer size,
@@ -53,4 +57,8 @@ public class GameController {
         return ResponseEntity.ok(gameService.getFranchise(size, page, filter));
     }
 
+    @GetMapping("add-ons")
+    public ResponseEntity<List<GameAddon>> getAddons(@RequestParam String gameId, @RequestParam(required = false) String type) {
+        return ResponseEntity.ok(addOnsService.getGameAddons(gameId, type));
+    }
 }

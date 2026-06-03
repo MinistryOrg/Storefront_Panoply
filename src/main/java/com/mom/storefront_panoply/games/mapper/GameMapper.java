@@ -1,10 +1,7 @@
 package com.mom.storefront_panoply.games.mapper;
 
 import com.mom.storefront_panoply.games.model.dbo.*;
-import com.mom.storefront_panoply.games.model.dto.CollectionDto;
-import com.mom.storefront_panoply.games.model.dto.FranchiseDto;
-import com.mom.storefront_panoply.games.model.dto.GameDetailsDto;
-import com.mom.storefront_panoply.games.model.dto.GameDto;
+import com.mom.storefront_panoply.games.model.dto.*;
 import com.mom.storefront_panoply.igdb.model.*;
 import com.mom.storefront_panoply.tools.Util;
 import org.springframework.stereotype.Component;
@@ -19,6 +16,21 @@ import java.util.stream.Collectors;
 
 @Component
 public class GameMapper {
+
+    public List<GameAddon> toGameAddons(List<GameEntity> gameDtos) {
+        final List<GameAddon> gameAddons = new ArrayList<>();
+        for (GameEntity gameDto : gameDtos) {
+            gameAddons.add(
+                    GameAddon.builder()
+                            .id(gameDto.getId())
+                            .artworks(gameDto.getArtworks())
+                            .type(gameDto.getType())
+                            .name(gameDto.getName())
+                            .build()
+            );
+        }
+        return gameAddons;
+    }
 
     public GameDto toGameDto(GameEntity entity) {
         if (Util.nullOrEmpty(entity)){
